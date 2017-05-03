@@ -58,7 +58,6 @@ public class UnigramLM {
 			temp.put(docId, 1);
 			invertedIndex.put(term, temp);
 		}
-
 	}
 
 	/**
