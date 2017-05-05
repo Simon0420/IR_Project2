@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.TreeMap;
 
 // @author Lars Hoffmann
@@ -24,6 +25,8 @@ public class RankingFunctions {
 		
 	}
 	
+	public static TreeMap<Integer,Double> docRanks = new TreeMap<Integer,Double>();
+	
 	public static void rankBIM(){
 		// TreeMap docId, weightSum
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
@@ -39,6 +42,16 @@ public class RankingFunctions {
 	
 	public static void rankBM25(){
 		
+	}
+	
+	private static double getWt(String term){
+		if(!Preprocessing.invertedIndex.containsKey(term)){
+			return 0.0;
+		}
+		int docsHaveTerm = Preprocessing.invertedIndex.get(term).size();
+		int totalDocs = Preprocessing.docSize.size();
+		double weight = Math.log(0.5 * ((totalDocs + 1)/(docsHaveTerm + 0.5))); //with smoothing
+		return weight;
 	}
 
 }
