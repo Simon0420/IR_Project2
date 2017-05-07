@@ -1,8 +1,12 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 // @author Lars Hoffmann
 public class RankingFunctions {
@@ -29,7 +33,7 @@ public class RankingFunctions {
 	//public static TreeMap<Integer,Double> docRanks = new TreeMap<Integer,Double>();
 	
 	// return unsorted DocIds with their total weight (sum of all weights per term).
-	public static TreeMap<Integer,Double> rankBIM(ArrayList<String> query){
+	public static SortedSet<Map.Entry<Integer,Double>> rankBIM(ArrayList<String> query){
 		// TreeMap docId, weightSum
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
@@ -51,12 +55,12 @@ public class RankingFunctions {
 			
 		}
 		
-		return ranks;
+		return sortByValues(ranks);
 	}
 	
 	// return unsorted DocIds with their total weight (sum of all weights per term) with Poisson distribution.
 	// k is a real constant, usually 1 <= k < 2
-	public static TreeMap<Integer,Double> rankTwoPoisson(ArrayList<String> query, double k){
+	public static SortedSet<Map.Entry<Integer,Double>> rankTwoPoisson(ArrayList<String> query, double k){
 		// TreeMap docId, weightSum
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
@@ -84,13 +88,13 @@ public class RankingFunctions {
 					
 		}
 				
-		return ranks;
+		return sortByValues(ranks);
 	}
 	
 	// return unsorted DocIds with their total weight (sum of all weights per term) with Poisson distribution.
 	// k is a real constant, usually 1 <= k < 2
 	// includes document lengths
-	public static TreeMap<Integer,Double> rankBM11(ArrayList<String> query, double k){
+	public static SortedSet<Map.Entry<Integer,Double>> rankBM11(ArrayList<String> query, double k){
 		// TreeMap docId, weightSum
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
@@ -120,14 +124,14 @@ public class RankingFunctions {
 					
 		}
 				
-		return ranks;	
+		return sortByValues(ranks);	
 	}
 	
 	// return unsorted DocIds with their total weight (sum of all weights per term) with Poisson distribution.
 	// k is a real constant, usually 1 <= k < 2
 	// includes document lengths	
 	// most common value for parameter b is b = 0.75 (for correction of doc length)
-	public static TreeMap<Integer,Double> rankBM25(ArrayList<String> query, double k, double b){
+	public static SortedSet<Map.Entry<Integer,Double>> rankBM25(ArrayList<String> query, double k, double b){
 		// TreeMap docId, weightSum
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
@@ -157,7 +161,7 @@ public class RankingFunctions {
 					
 		}
 				
-		return ranks;
+		return sortByValues(ranks);
 	}
 	
 	private static double getWt(String term){
@@ -178,6 +182,19 @@ public class RankingFunctions {
 		}
 				
 		return totalLength / (double)Preprocessing.docSize.size();
+	}
+	
+	private static SortedSet<Map.Entry<Integer,Double>> sortByValues(Map<Integer,Double> map) {
+	    SortedSet<Map.Entry<Integer,Double>> sortedEntries = new TreeSet<Map.Entry<Integer,Double>>(
+	        new Comparator<Map.Entry<Integer,Double>>() {
+	            @Override public int compare(Map.Entry<Integer,Double> e1, Map.Entry<Integer,Double> e2) {
+	                int res = e1.getValue().compareTo(e2.getValue());
+	                return res != 0 ? res*(-1) : 1;
+	            }
+	        }
+	    );
+	    sortedEntries.addAll(map.entrySet());
+	    return sortedEntries;
 	}
 
 }

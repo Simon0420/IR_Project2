@@ -127,7 +127,7 @@ public class Preprocessing {
 			}
 			docSize.put(docId, termCounter);
 		}
-		System.out.println("Created inverted index.");
+		//System.out.println("Created inverted index.");
 	}
 
 	public static void main(String[] args) {
