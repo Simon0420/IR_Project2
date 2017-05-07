@@ -111,7 +111,7 @@ public class Preprocessing {
 				String token = fileScanner.next();
 				// pre-processing here
 				token = token.toLowerCase();
-				token = token.replaceAll("[^\\w]", "");
+				token = token.replaceAll("[^\\w']", "");
 				
 				if(stopwords.contains(token)){
 					continue;
