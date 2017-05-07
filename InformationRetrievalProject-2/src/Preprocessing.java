@@ -101,6 +101,7 @@ public class Preprocessing {
 	 */
 	public static void createInvertedIndex() throws FileNotFoundException {
 		Scanner fileScanner;
+		PortersStemmer ps = new PortersStemmer();
 		for (int i = 0; i < documents.size(); i++) {
 			int termCounter = 0;
 
@@ -112,15 +113,19 @@ public class Preprocessing {
 				// pre-processing here
 				token = token.toLowerCase();
 				token = token.replaceAll("[^\\w']", "");
-				
+				//stop words?
 				if(stopwords.contains(token)){
 					continue;
 				}
-				// use regex
-				token = token.toLowerCase().replaceAll("[^a-z]", "");
-				// only token > 2
-				if (token.length() > 2) {
-					addTermToIndex(token, docId);
+				// only token > 1
+				if (token.length() > 1) {
+					String term;
+					if(token.matches("[a-zA-z]*")){
+						 term = ps.portersStemm(token);
+					}else{
+						term = token;
+					}					
+					addTermToIndex(term, docId);
 					termCounter++;
 					globalTermCounter++;
 				}
