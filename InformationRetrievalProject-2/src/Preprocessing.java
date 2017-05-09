@@ -78,7 +78,7 @@ public class Preprocessing {
 	 * @param term
 	 * @param docId
 	 */
-	public static void addTermToIndex(String term, Integer docId) {
+	public static void addTermToInvertedIndex(String term, Integer docId) {
 		if (invertedIndex.containsKey(term)) {
 			TreeMap<Integer, Integer> temp = invertedIndex.get(term);
 			if (temp.containsKey(docId)) {
@@ -99,7 +99,7 @@ public class Preprocessing {
 	 * 
 	 * @throws FileNotFoundException
 	 */
-	public static void createInvertedIndex() throws FileNotFoundException {
+	public static void readInDocuments() throws FileNotFoundException {
 		Scanner fileScanner;
 		PortersStemmer ps = new PortersStemmer();
 		for (int i = 0; i < documents.size(); i++) {
@@ -125,7 +125,7 @@ public class Preprocessing {
 					}else{
 						term = token;
 					}					
-					addTermToIndex(term, docId);
+					addTermToInvertedIndex(term, docId);
 					termCounter++;
 					globalTermCounter++;
 				}

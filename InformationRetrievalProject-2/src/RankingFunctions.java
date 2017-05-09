@@ -21,7 +21,7 @@ public class RankingFunctions {
 		}
 		System.out.println(Preprocessing.stopwords.size());
 		try {
-			Preprocessing.createInvertedIndex();
+			Preprocessing.readInDocuments();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}

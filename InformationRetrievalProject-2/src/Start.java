@@ -25,7 +25,7 @@ public class Start {
 		
 		try {
 			System.out.print("Create Inverted Index...\t");
-			Preprocessing.createInvertedIndex();
+			Preprocessing.readInDocuments();
 			System.out.println("done");
 			System.out.println("Total considered terms: "+Preprocessing.invertedIndex.size());
 		} catch (FileNotFoundException e) {
