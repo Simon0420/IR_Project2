@@ -4,14 +4,30 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.TreeMap;
+
+import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.ling.Word;
+import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import edu.stanford.nlp.process.Stemmer;
+import edu.stanford.nlp.simple.Sentence;
+import edu.stanford.nlp.util.CoreMap;
 
 public class Preprocessing {
 
 	static ArrayList<File> documents = new ArrayList<>();
 	static int globalTermCounter = 0;
+	static boolean ownStemmer = false;
+	static boolean nlpLemma = false;
+	static boolean nlpStemmer = true;
 
 	// TreeMap: term, document, document frequency
 	static TreeMap<String, TreeMap<Integer, Integer>> invertedIndex = new TreeMap<String, TreeMap<Integer, Integer>>();
@@ -34,8 +50,8 @@ public class Preprocessing {
 		BufferedReader bufferedReader = new BufferedReader(fileReader);
 		String line;
 		while ((line = bufferedReader.readLine()) != null) {
-			if(line.length() != 0){
-				if(!stopwords.contains(line)){
+			if (line.length() != 0) {
+				if (!stopwords.contains(line)) {
 					stopwords.add(line);
 				}
 			}
@@ -102,9 +118,9 @@ public class Preprocessing {
 	public static void readInDocuments() throws FileNotFoundException {
 		Scanner fileScanner;
 		PortersStemmer ps = new PortersStemmer();
+		Stemmer s = new Stemmer();
 		for (int i = 0; i < documents.size(); i++) {
 			int termCounter = 0;
-
 			fileScanner = new Scanner(documents.get(i));
 			int docId = Integer.parseInt(documents.get(i).getName());
 			while (fileScanner.hasNext()) {
@@ -112,19 +128,45 @@ public class Preprocessing {
 				String token = fileScanner.next();
 				// pre-processing here
 				token = token.toLowerCase();
-				token = token.replaceAll("[^\\w']", "");
-				//stop words?
-				if(stopwords.contains(token)){
+				token = token.replaceAll("[^\\w'@.]", "");
+				if (token.endsWith(".")) {
+					token = token.substring(0, token.length() - 1);
+				}
+				// 1st check for stop-word
+				if (stopwords.contains(token)) {
 					continue;
 				}
 				// only token > 1
-				if (token.length() > 1) {
+				if (token.length() > 0) {
+					Word w = new Word();
+					w.setWord(token);
 					String term;
-					if(token.matches("[a-zA-z]*")){
-						 term = ps.portersStemm(token);
-					}else{
+					if (token.matches("[a-zA-z']*")) {
+						if (ownStemmer) {
+							term = ps.portersStemm(token);
+						} else if(nlpStemmer){
+							w = s.stem(w);
+							term = w.word();
+						} else if(nlpLemma){
+							StanfordCoreNLP pipeline = new StanfordCoreNLP(new Properties(){{
+								  setProperty("annotators", "tokenize,ssplit,pos,lemma");
+								}});
+							Annotation tokenAnnotation = new Annotation("wedding");
+							List<CoreMap> list = tokenAnnotation.get(SentencesAnnotation.class);
+
+							term = list
+							                        .get(0).get(TokensAnnotation.class)
+							                        .get(0).get(LemmaAnnotation.class);
+						}else{
+							term = token;
+						}
+						//2nd check for stop-word
+						if (stopwords.contains(term)) {
+							continue;
+						}
+					} else {
 						term = token;
-					}					
+					}
 					addTermToInvertedIndex(term, docId);
 					termCounter++;
 					globalTermCounter++;
@@ -132,17 +174,24 @@ public class Preprocessing {
 			}
 			docSize.put(docId, termCounter);
 		}
-		//System.out.println("Created inverted index.");
+		System.out.println("Documents read & term-lists built.");
 	}
 
 	public static void main(String[] args) {
+		Date start = new Date();
 		readDocumentCollection("20news-bydate");
-		System.out.println(documents.size());
+		System.out.println("No of Docments: "+documents.size());
 		try {
 			readInStopwordLists();
+			System.out.println("No of Stopwords: "+stopwords.size());
+			
+			readInDocuments();
+			
+			System.out.println("No of Terms: "+invertedIndex.size());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println(stopwords.size());
+		Date stop = new Date();
+		System.out.println("Time for preprocessing: "+((stop.getTime()-start.getTime())/1000)+"s");
 	}
 }

@@ -1,6 +1,12 @@
 import java.util.Arrays;
 import java.util.HashSet;
 
+/**
+ * Self-made porter's stemmer implementation
+ * 
+ * @author simon
+ *
+ */
 public class PortersStemmer {
 	HashSet<String> vowels = new HashSet<String>(Arrays.asList("a", "e", "i", "o", "u"));
 	int m = 0;
@@ -180,8 +186,6 @@ public class PortersStemmer {
 	boolean d(String word) {
 		if (word.length() > 1) {
 			if (word.charAt(word.length() - 1) == word.charAt(word.length() - 2)) {
-				System.out.println(word.charAt(word.length() - 1));
-				System.out.println(word.charAt(word.length() - 2));
 				return true;
 			} else {
 				return false;
@@ -461,14 +465,24 @@ public class PortersStemmer {
 		return word;
 	}
 
+	// test main-method
 	public static void main(String[] args) {
 		PortersStemmer ps = new PortersStemmer();
-		String word = "controll";
+		String word = "tanned";
+		System.out.println("Input: \t\t\t"+word);
 		ps.calcM(word);
-		System.out.println(ps.m);
-		System.out.println(ps.vc);
+		System.out.println("m-length: \t\t"+ps.m);
+		System.out.println("Vocal/Cons-Sequences: \t"+ps.vc.toUpperCase());
 		word = ps.portersStemm(word);
-		System.out.println(word);
+		System.out.println("Result: \t\t"+word);
+		System.out.println("---------------------------------------");
+		word = "falling";
+		System.out.println("Input: \t\t\t"+word);
+		ps.calcM(word);
+		System.out.println("m-length: \t\t"+ps.m);
+		System.out.println("Vocal/Cons-Sequences: \t"+ps.vc.toUpperCase());
+		word = ps.portersStemm(word);
+		System.out.println("Result: \t\t"+word);
 	}
 
 }
