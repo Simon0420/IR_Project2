@@ -1,61 +1,23 @@
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 public class LanguageModel {
-
-	static int globalTermCount=0;
-	static ArrayList<File> documents = Preprocessing.documents;
-	static HashSet<String> stopwords = Preprocessing.stopwords;
 	
+	static TreeMap<String, TreeMap<Integer, Integer>> invertedIndex = Preprocessing.invertedIndex;
 	static TreeMap<Integer, Integer> docSize = Preprocessing.docSize;
-	
-	static TreeMap<Integer, TreeMap<String, Double>> localLM = new TreeMap<Integer, TreeMap<String, Double>>();
-	static TreeMap<String ,Integer> localTermCounter = new TreeMap<String, Integer>();
-	static TreeMap<String, Double> localTermProb = new TreeMap<String,Double>();
-	
-	static TreeMap<String,Double> globalLM = new TreeMap<String, Double>();
-	static TreeMap<String,Integer> globalTermCounter = new TreeMap<String,Integer>();
-	
-	
-	public static void main(String args[]) throws IOException{
-		
-		Preprocessing.readDocumentCollection("MyCollection");
-		System.out.println("Document size : "+documents.size());
-		System.out.println("Document read end");
-		
-		Preprocessing.readInStopwordLists();
-		System.out.println("Stopwords size : "+stopwords.size());
-		System.out.println("Stopword read end");
-		
-		//Preprocessing.createInvertedIndex();
-		//System.out.println("docSize : " +docSize.keySet().size());
-		
-		exploreSubDir("MyCollection");
-		
-		/*
-		System.out.println(localLM.size());
-		System.out.println(localLM.firstKey());
-		System.out.println(localLM.lastKey());
-		System.out.println(localLM.get(10003));
-		 */
-		
-		getGlobalLM();
-		
-		//System.out.println(globalLM.get("com"));
-		//JMSmoothing("com", 10003);
-	}
-	
+	static TreeMap<String, TreeMap<Integer, Double>> localLM = new TreeMap<String, TreeMap<Integer, Double>>();
+	static TreeMap<String, Integer> termSize = new TreeMap<String, Integer>();
+	static TreeMap<String, Double> globalLM = new TreeMap<String,Double>();
+
+	/*
 	public static void exploreSubDir(String source) throws IOException{
-		/*
-		 * explore dir and file recursively to explore all subfolders.
-		 */
+		
 		
 		File dir = new File(source);
 		File[] fileList = dir.listFiles();
@@ -71,21 +33,45 @@ public class LanguageModel {
 			
 		}
 	}
+*/
 	
-	public static void getLangModel(File file) throws IOException{
+	public static void getLocalLangModel() throws IOException{
 		/*
 		 * get LM from root directory
+		 * 1. Fetch TreeMap<docId, count> from invertedIndex.
+		 * 2. 
 		 * 
-		 * 1. explore documents of all path in exploreSubDir()
-		 * 2. do preprocessing 
-		 * 3. compute each probability and compute LM 
-		 * -two ways to compute LM-
-		 * 1)count total number of term in document, and then compute again to get LM, but maybe too slow
-		 * 2)use the number of terms in document saved in docSize. 
-		 * but second way is only used after inverted index is computed.
-		 * so just do with first way in here. (modify later with integrating)
 		 */
+		System.out.println("Get Local LM");
+		Iterator<String> it = invertedIndex.keySet().iterator();
+				
+		//여기가 String(term)별로 각 document와 frequency를 보고 LM을 구하는것.
+		while(it.hasNext()){
+			
+			String term = it.next();
+			int termCount = 0;
+			TreeMap<Integer, Integer>temp = invertedIndex.get(term);
+			Iterator<Integer> it2 = temp.keySet().iterator();
+			while(it2.hasNext()){
+				int docId = it2.next();
+				
+				double rank = (double) temp.get(docId) / docSize.get(docId);
+				TreeMap<Integer, Double> temp2 = new TreeMap<Integer, Double>();
+				temp2.put(docId, rank);
+				localLM.put(term, temp2);
+				
+				termCount = termCount + temp.get(docId);
+			}
+			
+			termSize.put(term,termCount);
+		}
 		
+		System.out.println("Comlete get local LM");
+		System.out.println(localLM);
+		
+		
+		
+		/*
 		//only stopword and simple lemmatization. can be complete after Preprocessing.
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String temp;
@@ -144,62 +130,30 @@ public class LanguageModel {
 		localLM.put(Integer.parseInt(file.getName()), localTermProb);
 		System.out.println("Finish get LocaclLM");
 		
-	}
-	
-	
-	//just method for debugging line by line with enter
-	private static void pause() {
-		// TODO Auto-generated method stub
-		try{
-			System.in.read();
-		}catch(IOException e){}
+		*/
 		
 	}
 	
-	public static void getLocalLM(String term, File file,int termCount){
-
+	public static void getGlobalLangModel(){
 		/*
-		 * get LocalLM with given term and file.
-		 * 1. File name is given, so just use the treemap of that file.
-		 * 2. if the term exist in the map, add 1 to the count.
-		 * 3. else, just put 1 with the term.
-		 * 
-		 * this way, we can get the count of each term, 
-		 * and if we divide it by termCounter, we can easily get local LM
+		 * 1. to compute global LM, we need some data structure
+		 * tha have a term and its global count. --> termSize
+		 * 2. and in the termSize, all words are already stored.
+		 * 3. so we just need to divide each row with total term count.
 		 */
+		System.out.println("Get global LM");
+		int totalTermCount = Preprocessing.invertedIndex.size();
 		
-		//System.out.println("Term : "+term);
-		
-		if(localTermCounter.containsKey(term)){
-			int count = localTermCounter.get(term);
-			count = count + 1;
-			localTermCounter.put(term, count);
-			localTermProb.put(term, (double)count / termCount);
-			//pause();
-		}
-		else{
-			localTermCounter.put(term, 1);
-			localTermProb.put(term, (double)1 / termCount);
-		}
-	}
-	
-	public static void getGlobalLM(){
-		/*
-		 * 1. all list of words and their counts are already stored in the step of getLM
-		 * 2. so we just need to divide them with globalTermCount. 
-		 */
-		System.out.println("Start get globalLM");
-		
-		String term;
-		Iterator<String> it = globalTermCounter.keySet().iterator();
+		Iterator<String> it = termSize.keySet().iterator();
 		
 		while(it.hasNext()){
-			term = 	it.next();
-			globalLM.put(term, (double)globalTermCounter.get(term) / globalTermCount);
+			String term = it.next();
+			
+			globalLM.put(term, (double) termSize.get(term) / totalTermCount);
+			
 		}
-		
-		System.out.println("Finish get globalLM");
-		
+		System.out.println("End global LM");
+		System.out.println(globalLM);
 	}
 	
 	public static double JMSmoothing(String term, int docId){
@@ -213,5 +167,34 @@ public class LanguageModel {
 		
 		return lamda*localLM.get(docId).get(term)+(1-lamda)*globalLM.get(term);
 	}
-
+	
+	
+	
+	public static void main(String args[]) throws IOException{
+		System.out.println("----LangModel2-----");
+		System.out.print("Read Document Collection...\t");
+		Preprocessing.readDocumentCollection("20news-bydate");
+		System.out.println("done");
+		System.out.println("Documents found: "+Preprocessing.documents.size());
+		try {
+			System.out.print("Read Stopword Lists...\t\t");
+			Preprocessing.readInStopwordLists();
+			System.out.println("done");
+			System.out.println("Stopwords found: "+Preprocessing.stopwords.size());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			System.out.print("Create Inverted Index...\t");
+			Preprocessing.readInDocuments();
+			System.out.println("done");
+			System.out.println("Total considered terms: "+Preprocessing.invertedIndex.size());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		getLocalLangModel();
+		getGlobalLangModel();
+	}
 }
