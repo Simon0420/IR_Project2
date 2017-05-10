@@ -186,7 +186,6 @@ public class Preprocessing {
 		Scanner fileScanner;
 		PortersStemmer ps = new PortersStemmer();
 		Stemmer s = new Stemmer();
-		int termCounter = 0;
 		fileScanner = new Scanner(txt);
 		ArrayList<String> queryTerms = new ArrayList<String>();
 		while (fileScanner.hasNext()) {
@@ -229,6 +228,7 @@ public class Preprocessing {
 				queryTerms.add(term);
 			}
 		}
+		fileScanner.close();
 		return queryTerms;
 	}
 	
