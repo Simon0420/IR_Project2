@@ -148,6 +148,9 @@ public class Preprocessing {
 							w = s.stem(w);
 							term = w.word();
 						} else if(nlpLemma){
+							Lemmatization lemma = new Lemmatization("running");
+							term = lemma.word;
+							/*
 							StanfordCoreNLP pipeline = new StanfordCoreNLP(new Properties(){{
 								  setProperty("annotators", "tokenize,ssplit,pos,lemma");
 								}});
@@ -158,7 +161,7 @@ public class Preprocessing {
 							}catch(NullPointerException ne){
 								System.out.println("Nullpointer...");
 								term = token;
-							}
+							}*/
 						}else{
 							term = token;
 						}
