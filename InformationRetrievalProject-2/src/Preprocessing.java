@@ -141,7 +141,7 @@ public class Preprocessing {
 					Word w = new Word();
 					w.setWord(token);
 					String term = "";
-					if (token.matches("[a-zA-z']*")) {
+					if (token.matches("[a-zA-Z']*")) {
 						if (ownStemmer) {
 							term = ps.portersStemm(token);
 						} else if(nlpStemmer){
@@ -180,6 +180,56 @@ public class Preprocessing {
 			docSize.put(docId, termCounter);
 		}
 		System.out.println("Documents read & term-lists built.");
+	}
+	
+	public static ArrayList<String> getQuery(String txt){
+		Scanner fileScanner;
+		PortersStemmer ps = new PortersStemmer();
+		Stemmer s = new Stemmer();
+		int termCounter = 0;
+		fileScanner = new Scanner(txt);
+		ArrayList<String> queryTerms = new ArrayList<String>();
+		while (fileScanner.hasNext()) {
+			// next token
+			String token = fileScanner.next();
+			// pre-processing here
+			token = token.toLowerCase();
+			token = token.replaceAll("[^\\w'@.]", "");
+			if (token.endsWith(".")) {
+				token = token.substring(0, token.length() - 1);
+			}
+			// 1st check for stop-word
+			if (stopwords.contains(token)) {
+				continue;
+			}
+			// only token > 1
+			if (token.length() > 0) {
+				Word w = new Word();
+				w.setWord(token);
+				String term = "";
+				if (token.matches("[a-zA-Z']*")) {
+					if (ownStemmer) {
+						term = ps.portersStemm(token);
+					} else if(nlpStemmer){
+						w = s.stem(w);
+						term = w.word();
+					} else if(nlpLemma){
+						Lemmatization lemma = new Lemmatization("running");
+						term = lemma.word;
+					}else{
+						term = token;
+					}
+					//2nd check for stop-word
+					if (stopwords.contains(term)) {
+						continue;
+					}
+				} else {
+					term = token;
+				}
+				queryTerms.add(term);
+			}
+		}
+		return queryTerms;
 	}
 	
 	public static void run(){
