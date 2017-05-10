@@ -13,6 +13,7 @@ public class Start {
 		System.out.print("Read Document Collection...\t");
 		Preprocessing.readDocumentCollection("20news-bydate");
 		System.out.println("done");
+		
 		System.out.println("Documents found: "+Preprocessing.documents.size());
 		try {
 			System.out.print("Read Stopword Lists...\t\t");
@@ -32,7 +33,8 @@ public class Start {
 			e.printStackTrace();
 		}
 		System.out.println("------------------------------------");
-		System.out.println("Ranking Functions:");
+		System.out.println("Ran"
+				+ "king Functions:");
 		System.out.println("1 = BIM");
 		System.out.println("2 = Two Poisson");
 		System.out.println("3 = BM11");
