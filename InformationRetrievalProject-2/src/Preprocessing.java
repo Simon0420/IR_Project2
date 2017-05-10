@@ -36,7 +36,7 @@ public class Preprocessing {
 	// HashSet: stop-word
 	static HashSet<String> stopwords = new HashSet<>();
 
-	static public void readInStopwordLists() throws IOException {
+	static void readInStopwordLists() throws IOException {
 		String stopwordList = "stopwords.txt";
 		readSingleStopwordList(stopwordList);
 		stopwordList = "stopwords2.txt";
@@ -65,7 +65,7 @@ public class Preprocessing {
 	 * @param rootFolderPath
 	 *            root-folder-path of the collection as String
 	 */
-	static public void readDocumentCollection(String rootFolderPath) {
+	static void readDocumentCollection(String rootFolderPath) {
 		File folder = new File(rootFolderPath);
 		File[] subFolders = folder.listFiles();
 		readFilesInSubFolders(subFolders);
@@ -94,7 +94,7 @@ public class Preprocessing {
 	 * @param term
 	 * @param docId
 	 */
-	public static void addTermToInvertedIndex(String term, Integer docId) {
+	private static void addTermToInvertedIndex(String term, Integer docId) {
 		if (invertedIndex.containsKey(term)) {
 			TreeMap<Integer, Integer> temp = invertedIndex.get(term);
 			if (temp.containsKey(docId)) {
@@ -115,7 +115,7 @@ public class Preprocessing {
 	 * 
 	 * @throws FileNotFoundException
 	 */
-	public static void readInDocuments() throws FileNotFoundException {
+	static void readInDocuments() throws FileNotFoundException {
 		Scanner fileScanner;
 		PortersStemmer ps = new PortersStemmer();
 		Stemmer s = new Stemmer();
@@ -181,6 +181,24 @@ public class Preprocessing {
 		}
 		System.out.println("Documents read & term-lists built.");
 	}
+	
+	public static void run(){
+		Date start = new Date();
+		readDocumentCollection("20news-bydate");
+		System.out.println("No of Docments: "+documents.size());
+		try {
+			readInStopwordLists();
+			System.out.println("No of Stopwords: "+stopwords.size());
+			
+			readInDocuments();			
+			System.out.println("No of Terms: "+invertedIndex.size());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Date stop = new Date();
+		System.out.println("Time for preprocessing: "+((stop.getTime()-start.getTime())/1000)+"s");
+	}
+	
 
 	public static void main(String[] args) {
 		Date start = new Date();

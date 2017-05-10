@@ -10,25 +10,6 @@ import java.util.TreeSet;
 
 // @author Lars Hoffmann
 public class RankingFunctions {
-
-	public static void main(String[] args) {
-		Preprocessing.readDocumentCollection("20news-bydate");
-		System.out.println(Preprocessing.documents.size());
-		try {
-			Preprocessing.readInStopwordLists();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println(Preprocessing.stopwords.size());
-		try {
-			Preprocessing.readInDocuments();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		System.out.println(Preprocessing.invertedIndex.size());
-		
-		
-	}
 	
 	//public static TreeMap<Integer,Double> docRanks = new TreeMap<Integer,Double>();
 	
