@@ -33,7 +33,7 @@ public class Preprocessing {
 	static TreeMap<String, TreeMap<Integer, Integer>> invertedIndex = new TreeMap<String, TreeMap<Integer, Integer>>();
 	// TreeMap: document, size
 	static TreeMap<Integer, Integer> docSize = new TreeMap<Integer, Integer>();
-	// HashSet: stopword
+	// HashSet: stop-word
 	static HashSet<String> stopwords = new HashSet<>();
 
 	static public void readInStopwordLists() throws IOException {
@@ -140,7 +140,7 @@ public class Preprocessing {
 				if (token.length() > 0) {
 					Word w = new Word();
 					w.setWord(token);
-					String term;
+					String term = "";
 					if (token.matches("[a-zA-z']*")) {
 						if (ownStemmer) {
 							term = ps.portersStemm(token);
@@ -151,12 +151,14 @@ public class Preprocessing {
 							StanfordCoreNLP pipeline = new StanfordCoreNLP(new Properties(){{
 								  setProperty("annotators", "tokenize,ssplit,pos,lemma");
 								}});
-							Annotation tokenAnnotation = new Annotation("wedding");
+							Annotation tokenAnnotation = new Annotation(token);
 							List<CoreMap> list = tokenAnnotation.get(SentencesAnnotation.class);
-
-							term = list
-							                        .get(0).get(TokensAnnotation.class)
-							                        .get(0).get(LemmaAnnotation.class);
+							try{
+							term = list.get(0).get(TokensAnnotation.class).get(0).get(LemmaAnnotation.class);
+							}catch(NullPointerException ne){
+								System.out.println("Nullpointer...");
+								term = token;
+							}
 						}else{
 							term = token;
 						}
