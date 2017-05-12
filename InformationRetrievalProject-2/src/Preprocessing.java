@@ -25,9 +25,9 @@ public class Preprocessing {
 
 	static ArrayList<File> documents = new ArrayList<>();
 	static int globalTermCounter = 0;
-	static boolean ownStemmer = true;
-	static boolean nlpLemma = false;
-	static boolean nlpStemmer = false;
+	static private boolean ownStemmer = true;
+	static private boolean nlpLemma = false;
+	static private boolean nlpStemmer = false;
 
 	// TreeMap: term, document, document frequency
 	static TreeMap<String, TreeMap<Integer, Integer>> invertedIndex = new TreeMap<String, TreeMap<Integer, Integer>>();
@@ -240,6 +240,14 @@ public class Preprocessing {
 			readInStopwordLists();
 			System.out.println("No of Stopwords: "+stopwords.size());
 			
+			if(Preprocessing.isNlpLemma()){
+				System.out.println("NLP Lemmatization");
+			}else if(Preprocessing.isNlpStemmer()){
+				System.out.println("NLP Stemming");
+			}else{
+				System.out.println("Custom Stemming");
+			}
+			
 			readInDocuments();			
 			System.out.println("No of Terms: "+invertedIndex.size());
 		} catch (IOException e) {
@@ -258,13 +266,50 @@ public class Preprocessing {
 			readInStopwordLists();
 			System.out.println("No of Stopwords: "+stopwords.size());
 			
-			readInDocuments();
+			if(Preprocessing.isNlpLemma()){
+				System.out.println("NLP Lemmatization");
+			}else if(Preprocessing.isNlpStemmer()){
+				System.out.println("NLP Stemming");
+			}else{
+				System.out.println("Custom Stemming");
+			}
 			
+			readInDocuments();
 			System.out.println("No of Terms: "+invertedIndex.size());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		Date stop = new Date();
 		System.out.println("Time for preprocessing: "+((stop.getTime()-start.getTime())/1000)+"s");
+	}
+
+	public static boolean isOwnStemmer() {
+		return ownStemmer;
+	}
+
+	public static void enableOwnStemmer() {
+		Preprocessing.ownStemmer = true;
+		Preprocessing.nlpStemmer = false;
+		Preprocessing.nlpLemma = false;
+	}
+
+	public static boolean isNlpLemma() {
+		return nlpLemma;
+	}
+
+	public static void enableNlpLemma() {
+		Preprocessing.ownStemmer = false;
+		Preprocessing.nlpStemmer = false;
+		Preprocessing.nlpLemma = true;
+	}
+
+	public static boolean isNlpStemmer() {
+		return nlpStemmer;
+	}
+
+	public static void enableNlpStemmer() {
+		Preprocessing.ownStemmer = false;
+		Preprocessing.nlpStemmer = true;
+		Preprocessing.nlpLemma = false;
 	}
 }
