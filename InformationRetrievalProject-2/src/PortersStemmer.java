@@ -410,7 +410,7 @@ public class PortersStemmer {
 			sb.delete(sb.length() - 4, sb.length());
 		} else if (word.endsWith("ent") && getM(word.substring(0, word.length() - 3)) > 1) {
 			sb.delete(sb.length() - 3, sb.length());
-		} else if ((word.endsWith("sion") | word.endsWith("tion")) & getM(word.substring(0, word.length() - 3)) > 1) {
+		} else if ((word.endsWith("sion") | word.endsWith("tion")) && getM(word.substring(0, word.length() - 3)) > 1) {
 			sb.delete(sb.length() - 3, sb.length());
 		} else if (word.endsWith("ou") && getM(word.substring(0, word.length() - 2)) > 1) {
 			sb.delete(sb.length() - 2, sb.length());
