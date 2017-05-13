@@ -118,7 +118,7 @@ public class UserInterface extends JFrame {
 		JRadioButton bm25 = new JRadioButton("BM25");
 		bm25.setActionCommand("bm25");
 		JRadioButton lm = new JRadioButton("LM");
-		bm25.setActionCommand("lm");
+		lm.setActionCommand("lm");
 		// Group the radio buttons.
 		rankGroup.add(bim);
 		rankGroup.add(twoP);
@@ -169,6 +169,7 @@ public class UserInterface extends JFrame {
 			switch (command) {
 			case "readDocs":
 				Preprocessing.run();
+				searchButton.setEnabled(true);
 				break;
 			case "nlpStemmer":
 				Preprocessing.enableNlpStemmer();
@@ -183,12 +184,17 @@ public class UserInterface extends JFrame {
 				textQuery.setText("");
 				break;
 			case "search":
+				searchButton.setEnabled(false);
+				readButton.setEnabled(false);
 				String cmd = rankGroup.getSelection().getActionCommand();
 				System.out.println(cmd);
 				Query q = new Query(textQuery.getText(), cmd, 10);
+				System.out.println(q.terms);
 				q.search();
 				printResults(q);
 				System.out.println(q.sortedResults);
+				searchButton.setEnabled(true);
+				readButton.setEnabled(true);
 			}
 
 		}

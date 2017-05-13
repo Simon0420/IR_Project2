@@ -1,19 +1,11 @@
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedSet;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 // @author Lars Hoffmann
 public class RankingFunctions {
 	
-	//public static TreeMap<Integer,Double> docRanks = new TreeMap<Integer,Double>();
-	
-	
+
 	public static void rank(Query q){
 		switch(q.function){
 		case "bim":

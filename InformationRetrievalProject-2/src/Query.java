@@ -52,6 +52,7 @@ public class Query {
 		int i = 0;
 		while(it.hasNext() && i<topCount){
 			docs[i] = it.next().getKey();
+			i++;
 		}
 		return docs;
 	}
