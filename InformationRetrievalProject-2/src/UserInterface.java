@@ -16,12 +16,13 @@ public class UserInterface extends JFrame {
 	private JButton readButton = new JButton("Read Doc-Collection");
 	private JLabel labelRankingFunctions = new JLabel("Ranking-f(x)s: ");
 	private ActionListener buttonListener = new IR_UI_Listener();
+	private ButtonGroup rankGroup = new ButtonGroup();
 	private static JTextPane textPane;
 	private JTextArea textArea;
 
 	public UserInterface() {
 		super("Information Retrieval System");
-		JPanel pane = new JPanel();
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
 
 		// CONFIG PANEL
@@ -78,6 +79,8 @@ public class UserInterface extends JFrame {
 		// QUERY PANEL
 		JPanel queryPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints queryConstraints = new GridBagConstraints();
+		searchButton.setActionCommand("search");
+		deleteButton.setActionCommand("delete");
 		queryConstraints.anchor = GridBagConstraints.WEST;
 		queryConstraints.insets = new Insets(5, 5, 5, 5);
 		queryConstraints.gridx = 0;
@@ -96,6 +99,9 @@ public class UserInterface extends JFrame {
 		queryPanel.add(deleteButton, queryConstraints);
 		queryPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Query Panel"));
 		getContentPane().add(queryPanel);
+		searchButton.addActionListener(buttonListener);
+		deleteButton.addActionListener(buttonListener);
+		
 
 		// CONFIG PANEL
 		JPanel configPanel = new JPanel(new GridBagLayout());
@@ -111,12 +117,14 @@ public class UserInterface extends JFrame {
 		bm11.setActionCommand("bm11");
 		JRadioButton bm25 = new JRadioButton("BM25");
 		bm25.setActionCommand("bm25");
+		JRadioButton lm = new JRadioButton("LM");
+		bm25.setActionCommand("lm");
 		// Group the radio buttons.
-		ButtonGroup rankGroup = new ButtonGroup();
 		rankGroup.add(bim);
 		rankGroup.add(twoP);
 		rankGroup.add(bm11);
 		rankGroup.add(bm25);
+		rankGroup.add(lm);
 
 		configConstraints.anchor = GridBagConstraints.WEST;
 		configConstraints.gridx = 1;
@@ -134,16 +142,20 @@ public class UserInterface extends JFrame {
 		configConstraints.gridx = 2;
 		configConstraints.gridy = 3;
 		configPanel.add(bm25, configConstraints);
+		configConstraints.gridx = 2;
+		configConstraints.gridy = 4;
+		configPanel.add(lm, configConstraints);
 
 		configPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Config Panel"));
 		getContentPane().add(configPanel);
 
 		// Console PANEL
 		textPane = new JTextPane();
-		textArea = new JTextArea();
-		textPane.add(textArea);
+		textArea = new JTextArea("test");
+		textPane.setEditable(false);
 		textPane.setSize(300, 100);
 		textPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Console Panel"));
+		textPane.add(textArea);
 		getContentPane().add(textPane);
 
 		pack();
@@ -167,11 +179,31 @@ public class UserInterface extends JFrame {
 			case "group11Stemmer":
 				Preprocessing.enableOwnStemmer();
 				break;
+			case "delete":
+				textQuery.setText("");
+				break;
+			case "search":
+				String cmd = rankGroup.getSelection().getActionCommand();
+				System.out.println(cmd);
+				Query q = new Query(textQuery.getText(), cmd, 10);
+				q.search();
+				printResults(q);
+				System.out.println(q.sortedResults);
 			}
 
 		}
 	}
 
+	public void printResults(Query q){
+		int[] docs = q.getTopDocs();
+		String res = "Query: " + q.fullQuery+"\n";
+		res = res + "Rank |\tDocument ID\n";
+		for(int i=0; i<docs.length; i++){
+			res = res + (i+1) + "\t" + docs[i] + "\n";
+		}
+		textPane.setText(res);
+	}
+	
 	public static void main(String[] args) {
 		// set look and feel to the system look and feel
 		try {
