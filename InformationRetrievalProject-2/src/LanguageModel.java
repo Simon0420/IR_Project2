@@ -3,7 +3,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
@@ -12,28 +15,12 @@ public class LanguageModel {
 	static TreeMap<String, TreeMap<Integer, Integer>> invertedIndex = Preprocessing.invertedIndex;
 	static TreeMap<Integer, Integer> docSize = Preprocessing.docSize;
 	static TreeMap<String, TreeMap<Integer, Double>> localLM = new TreeMap<String, TreeMap<Integer, Double>>();
+	
+	//term, frequency
 	static TreeMap<String, Integer> termSize = new TreeMap<String, Integer>();
 	static TreeMap<String, Double> globalLM = new TreeMap<String,Double>();
 
-	/*
-	public static void exploreSubDir(String source) throws IOException{
-		
-		
-		File dir = new File(source);
-		File[] fileList = dir.listFiles();
-		
-		for(int i=0; i<fileList.length; i++){
-			if(fileList[i].isFile()){
-				getLangModel(fileList[i]);
-			}
-			
-			else if(fileList[i].isDirectory()){
-				exploreSubDir(fileList[i].getCanonicalPath().toString());
-			}
-			
-		}
-	}
-*/
+
 	
 	public static void getLocalLangModel() throws IOException{
 		/*
@@ -42,106 +29,48 @@ public class LanguageModel {
 		 * 2. 
 		 * 
 		 */
-		System.out.println("Get Local LM");
+		System.out.println();
 		Iterator<String> it = invertedIndex.keySet().iterator();
+		
 				
-		//여기가 String(term)별로 각 document와 frequency를 보고 LM을 구하는것.
+		//compute LM from each term's docId and document frequency.
+
 		while(it.hasNext()){
 			
 			String term = it.next();
-			int termCount = 0;
+			int totalTermCount = 0;
+			
+			/*
+			 * temp : <docId, count of term>
+			 * temp2 : <docId, rank>
+			 */
 			TreeMap<Integer, Integer>temp = invertedIndex.get(term);
+			TreeMap<Integer, Double> temp2 = new TreeMap<Integer, Double>();
+
 			Iterator<Integer> it2 = temp.keySet().iterator();
 			while(it2.hasNext()){
 				int docId = it2.next();
-				
-				double rank = (double) temp.get(docId) / docSize.get(docId);
-				TreeMap<Integer, Double> temp2 = new TreeMap<Integer, Double>();
+				int termCount = temp.get(docId);
+				double rank = (double) termCount / docSize.get(docId);
+	
 				temp2.put(docId, rank);
 				localLM.put(term, temp2);
 				
-				termCount = termCount + temp.get(docId);
+				totalTermCount = totalTermCount + termCount;
 			}
 			
-			termSize.put(term,termCount);
+			termSize.put(term,totalTermCount);
 		}
-		
-		System.out.println("Comlete get local LM");
-		System.out.println(localLM);
-		
-		
-		
-		/*
-		//only stopword and simple lemmatization. can be complete after Preprocessing.
-		BufferedReader br = new BufferedReader(new FileReader(file));
-		String temp;
-		StringTokenizer token;
-		int localTermCount=0;
-		
-		while((temp = br.readLine())!=null){
-			token = new StringTokenizer(temp, " :.-_';/,!?<>)(,@");
-				
-			while(token.hasMoreTokens()){
-				temp = token.nextToken().toLowerCase();
-				
-				if(stopwords.contains(temp)){
-					continue;
-				}
-				if(temp == " "){
-				}
-				localTermCount++;
-				globalTermCount++;
-				
-			}
-		}
-		br.close();
-		
-		br = new BufferedReader(new FileReader(file));
-
-		//System.out.println("TermCounter : "+localTermCount);
-		//pause();
-		
-		System.out.println("Start get LM");
-		
-		while((temp = br.readLine())!=null){
-			token = new StringTokenizer(temp, " :.-_';/,!?<>)(,@");
-			
-			while(token.hasMoreTokens()){
-				temp = token.nextToken().toLowerCase();
-				if(stopwords.contains(temp)){
-					continue;
-				}
-				if(temp == " "){
-					
-				}
-				getLocalLM(temp,file,localTermCount);
-				
-				if(globalTermCounter.containsKey(temp)){
-					int globalCount = globalTermCounter.get(temp);
-					globalCount = globalCount + 1;
-					globalTermCounter.put(temp, globalCount);
-				}
-				else{
-					globalTermCounter.put(temp, 1);
-				}
-			}
-		}
-		br.close();
-		localLM.put(Integer.parseInt(file.getName()), localTermProb);
-		System.out.println("Finish get LocaclLM");
-		
-		*/
 		
 	}
 	
-	public static void getGlobalLangModel(){
+	public static void getGlobalLangModel() throws IOException{
 		/*
 		 * 1. to compute global LM, we need some data structure
-		 * tha have a term and its global count. --> termSize
+		 * that have a term and its global count. --> termSize
 		 * 2. and in the termSize, all words are already stored.
 		 * 3. so we just need to divide each row with total term count.
 		 */
-		System.out.println("Get global LM");
 		int totalTermCount = Preprocessing.invertedIndex.size();
 		
 		Iterator<String> it = termSize.keySet().iterator();
@@ -152,11 +81,9 @@ public class LanguageModel {
 			globalLM.put(term, (double) termSize.get(term) / totalTermCount);
 			
 		}
-		System.out.println("End global LM");
-		System.out.println(globalLM);
 	}
 	
-	public static double JMSmoothing(String term, int docId){
+	public static double JMSmoothing(double localRank, double globalRank){
 		/*
 		 * 1. we all have information on maps
 		 * 2. so we just need to compute with lamda.
@@ -165,17 +92,133 @@ public class LanguageModel {
 		//System.out.println(localLM.get(docId).get(term));
 		//System.out.println(globalLM.get(term));
 		
-		return lamda*localLM.get(docId).get(term)+(1-lamda)*globalLM.get(term);
+		return lamda*localRank + (1-lamda)*globalRank;
+	}
+	
+	public static void printLocalLM(){
+		
+		Iterator<String> it = localLM.keySet().iterator();
+		Object obj;
+		int i=0;
+
+		while(it.hasNext()){
+			obj = it.next();
+			Iterator<Integer> it2 = localLM.get(obj).keySet().iterator();
+
+
+			System.out.println(obj +": "+ localLM.get(obj));
+			i++;
+			if(i==1000)
+				break;
+		}
+	}
+	
+	public static void printGlobaLM(){
+		
+		Iterator<String> it = globalLM.keySet().iterator();
+		Object obj;
+		int i=0;
+		while(it.hasNext()){
+			obj = it.next();
+			
+			System.out.println(obj +": "+ globalLM.get(obj));
+			i++;
+			if(i==100){
+				break;
+			}
+		}
+		
+	}
+	
+	public static TreeMap<Integer, Double> rank(String term){
+		/*
+		 * to rank with LM,  we need to get the value in LM with string of query.
+		 * so, find the data which have the term in local and global LM first,
+		 * and, just calculate and rank the docs to some data
+		 * then return the data.
+		 */
+		
+		//docId, rank
+		TreeMap<Integer, Double> localRanks = new TreeMap<Integer, Double>();
+		System.out.println(term);
+	
+		//first, get a data from localLM with corresponding term.
+		localRanks = localLM.get(term);
+		
+		//then, get a computed rank with JMSmoothing for all docId have the term.
+		Iterator<Integer> it = localRanks.keySet().iterator();
+		double globalRank = globalLM.get(term);
+
+		while(it.hasNext()){
+			int docId = it.next();
+			double localRank = localRanks.get(docId);		
+			localRanks.put(docId, JMSmoothing(localRank, globalRank));
+		}
+		
+		System.out.println("Unsorted Ranks..");
+		System.out.println(localRanks);	
+		return localRanks;	
+	}
+
+	/*
+	 * 1. get the Query form of string from the UI.
+	 * 2. get TreeMap of ranks of each term by using rank() function
+	 * 3. sort the TreeMap and print or return it.
+	 */
+	public static TreeMap<Integer, Double>getQuery(){
+		
+		System.out.println("Get Query..");
+		//some method for get Query, change aaa to appropriate form.
+		String aaa="clinton";
+		TreeMap<Integer, Double> localRanks = rank(aaa);
+		TreeMap<Integer, Double> sortedRanks = new TreeMap<Integer, Double>();
+		
+		sortedRanks = sortByValues(localRanks);
+		System.out.println("Sorted Ranks");
+		System.out.println(sortedRanks);
+		
+
+	
+		return sortedRanks;
+		
+	}
+	
+	public static <K, V extends Comparable<V>> TreeMap<K, V> sortByValues(final TreeMap<K, V> map) {
+	    Comparator<K> valueComparator =  new Comparator<K>() {
+	        public int compare(K k1, K k2) {
+	            int compare = map.get(k2).compareTo(map.get(k1));
+	            if (compare == 0) return 1;
+	            else return compare;
+	        }
+	    };
+	    TreeMap<K, V> sortedByValues = new TreeMap<K, V>(valueComparator);
+	    sortedByValues.putAll(map);
+	    return sortedByValues;
+	}
+	
+	public static void printRanks(TreeMap<Integer, Double> sortedRanks){
+		
+		Iterator<Integer> it = sortedRanks.keySet().iterator();
+		
+		System.out.println("Rank |\tDocuments ID |\tRanks Value");
+		int i=0;
+		while(it.hasNext()){
+			int docId = it.next();
+			i++;
+			System.out.println(i+"\t"+docId+"\t \t"+sortedRanks.get(docId));
+		}
 	}
 	
 	
 	
 	public static void main(String args[]) throws IOException{
+		
 		System.out.println("----LangModel2-----");
 		System.out.print("Read Document Collection...\t");
 		Preprocessing.readDocumentCollection("20news-bydate");
 		System.out.println("done");
 		System.out.println("Documents found: "+Preprocessing.documents.size());
+		
 		try {
 			System.out.print("Read Stopword Lists...\t\t");
 			Preprocessing.readInStopwordLists();
@@ -187,14 +230,28 @@ public class LanguageModel {
 		
 		try {
 			System.out.print("Create Inverted Index...\t");
+			Preprocessing.enableNlpStemmer();
 			Preprocessing.readInDocuments();
-			System.out.println("done");
 			System.out.println("Total considered terms: "+Preprocessing.invertedIndex.size());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 		
+		System.out.print("Get Local Langauge Model..");
 		getLocalLangModel();
+		System.out.println("done");
+		
+		
+		System.out.print("Get Global Language Model..");
 		getGlobalLangModel();
+		System.out.println("done");
+		
+		//System.out.println(localLM);
+		
+		System.out.println("\n---Rank Documents Test---");
+		TreeMap<Integer,Double> sortedRanks = getQuery();
+		printRanks(sortedRanks);
+		
+		
 	}
 }
