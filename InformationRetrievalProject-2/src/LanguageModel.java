@@ -19,6 +19,9 @@ public class LanguageModel {
 	//term, frequency
 	static TreeMap<String, Integer> termSize = new TreeMap<String, Integer>();
 	static TreeMap<String, Double> globalLM = new TreeMap<String,Double>();
+	
+	//docId, rank
+	static TreeMap<Integer, Double> computedRanks = new TreeMap<Integer, Double>();
 
 
 	
@@ -95,6 +98,7 @@ public class LanguageModel {
 		return lamda*localRank + (1-lamda)*globalRank;
 	}
 	
+	/*
 	public static void printLocalLM(){
 		
 		Iterator<String> it = localLM.keySet().iterator();
@@ -112,7 +116,9 @@ public class LanguageModel {
 				break;
 		}
 	}
+	*/
 	
+	/*
 	public static void printGlobaLM(){
 		
 		Iterator<String> it = globalLM.keySet().iterator();
@@ -129,8 +135,10 @@ public class LanguageModel {
 		}
 		
 	}
+	*/
 	
-	public static TreeMap<Integer, Double> rank(String term){
+	public static void computeRank(String term){
+		
 		/*
 		 * to rank with LM,  we need to get the value in LM with string of query.
 		 * so, find the data which have the term in local and global LM first,
@@ -140,49 +148,69 @@ public class LanguageModel {
 		
 		//docId, rank
 		TreeMap<Integer, Double> localRanks = new TreeMap<Integer, Double>();
+		
 		System.out.println(term);
 	
 		//first, get a data from localLM with corresponding term.
 		localRanks = localLM.get(term);
 		
-		//then, get a computed rank with JMSmoothing for all docId have the term.
+		//then, get a computed rank with JMSmoothing for all docId having the term.
+		
+		/*** Errors here
+		 * its becuase using UserInterface, there are no steps to get LM.
+		 * so we need to get it first there, then we can rank documents by using LM.
+		 */
 		Iterator<Integer> it = localRanks.keySet().iterator();
 		double globalRank = globalLM.get(term);
 
 		while(it.hasNext()){
 			int docId = it.next();
 			double localRank = localRanks.get(docId);		
-			localRanks.put(docId, JMSmoothing(localRank, globalRank));
+			
+			if(computedRanks.containsKey(docId)){
+				//localRank = computedRanks.get(docId);
+				computedRanks.put(docId, computedRanks.get(docId) + JMSmoothing(localRank, globalRank));
+			}
+			else{
+				computedRanks.put(docId, JMSmoothing(localRank, globalRank));
+			}
 		}
 		
-		System.out.println("Unsorted Ranks..");
-		System.out.println(localRanks);	
-		return localRanks;	
+		//System.out.println("Unsorted Ranks..");
+		//System.out.println(computedRanks);		
 	}
 
 	/*
 	 * 1. get the Query form of string from the UI.
-	 * 2. get TreeMap of ranks of each term by using rank() function
+	 * 2. get TreeMap of ranks of each term by using computeRank() function
 	 * 3. sort the TreeMap and print or return it.
 	 */
-	public static TreeMap<Integer, Double>getQuery(){
+	public static TreeMap<Integer, Double>getRank(ArrayList<String> query){
 		
-		System.out.println("Get Query..");
-		//some method for get Query, change aaa to appropriate form.
-		String aaa="clinton";
-		TreeMap<Integer, Double> localRanks = rank(aaa);
-		TreeMap<Integer, Double> sortedRanks = new TreeMap<Integer, Double>();
+		for(int i=0; i<query.size(); i++){
+			String term = query.get(i);
+			computeRank(term);
+		}
 		
-		sortedRanks = sortByValues(localRanks);
+		//We do not need to sort here, so just return unsorted result.
+		return computedRanks;
+		
+		
+		/*
+		TreeMap<Integer, Double> sortedRanks = sortByValues(computedRanks);
 		System.out.println("Sorted Ranks");
 		System.out.println(sortedRanks);
-		
-
-	
 		return sortedRanks;
+		*/
 		
 	}
 	
+	public static void rank(Query q){
+		if(q.function.equals("lm")){
+			q.unsortedResults = getRank(q.terms);
+		}
+	}
+	/*
 	public static <K, V extends Comparable<V>> TreeMap<K, V> sortByValues(final TreeMap<K, V> map) {
 	    Comparator<K> valueComparator =  new Comparator<K>() {
 	        public int compare(K k1, K k2) {
@@ -195,7 +223,9 @@ public class LanguageModel {
 	    sortedByValues.putAll(map);
 	    return sortedByValues;
 	}
+	*/
 	
+	/*
 	public static void printRanks(TreeMap<Integer, Double> sortedRanks){
 		
 		Iterator<Integer> it = sortedRanks.keySet().iterator();
@@ -208,6 +238,7 @@ public class LanguageModel {
 			System.out.println(i+"\t"+docId+"\t \t"+sortedRanks.get(docId));
 		}
 	}
+	*/
 	
 	
 	
@@ -249,9 +280,18 @@ public class LanguageModel {
 		//System.out.println(localLM);
 		
 		System.out.println("\n---Rank Documents Test---");
-		TreeMap<Integer,Double> sortedRanks = getQuery();
-		printRanks(sortedRanks);
 		
+		Query q = new Query("clinton break", "lm", 10);
+		System.out.println(q.fullQuery);
+		System.out.println(q.terms);
+		
+		rank(q);
+		System.out.println("unsorted result");
+		System.out.println(q.unsortedResults);
+		
+		//q.sortedResults=q.sortByValues(computedRanks);
+		//System.out.println("sorted result");
+		//System.out.println(q.sortedResults);
 		
 	}
 }
