@@ -24,7 +24,7 @@ public class UserInterface extends JFrame {
 		super("Information Retrieval System");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
-
+		
 		// CONFIG PANEL
 		JPanel preproPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints preproConstraints = new GridBagConstraints();
@@ -69,6 +69,7 @@ public class UserInterface extends JFrame {
 		preproConstraints.gridx = 4;
 		preproConstraints.gridy = 0;
 		preproPanel.add(readButton, preproConstraints);
+		preproPanel.setMaximumSize(new Dimension(800, 150));
 		preproPanel.setBorder(
 				BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Pre-Processing Panel"));
 		getContentPane().add(preproPanel);
@@ -98,6 +99,7 @@ public class UserInterface extends JFrame {
 		queryConstraints.gridy = 1;
 		queryPanel.add(deleteButton, queryConstraints);
 		queryPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Query Panel"));
+		queryPanel.setMaximumSize(new Dimension(800, 200));
 		getContentPane().add(queryPanel);
 		searchButton.addActionListener(buttonListener);
 		deleteButton.addActionListener(buttonListener);
@@ -147,18 +149,19 @@ public class UserInterface extends JFrame {
 		configPanel.add(lm, configConstraints);
 
 		configPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Config Panel"));
+		configPanel.setMaximumSize(new Dimension(800, 100));
 		getContentPane().add(configPanel);
 
 		// Console PANEL
 		textPane = new JTextPane();
 		textArea = new JTextArea("test");
 		textPane.setEditable(false);
-		textPane.setSize(300, 100);
+		textPane.setSize(300, 300);
 		textPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Console Panel"));
 		textPane.add(textArea);
 		getContentPane().add(textPane);
-
-		pack();
+		
+		this.setSize(800,800);
 		setLocationRelativeTo(null);
 	}
 
