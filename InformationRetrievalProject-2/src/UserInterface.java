@@ -60,14 +60,14 @@ public class UserInterface extends JFrame {
 		preproConstraints.gridx = 1;
 		preproConstraints.gridy = 0;
 		preproPanel.add(nlpStemmer, preproConstraints);
-		preproConstraints.gridx = 1;
-		preproConstraints.gridy = 1;
+		preproConstraints.gridx = 2;
+		preproConstraints.gridy = 0;
 		preproPanel.add(nlpLemmatizer, preproConstraints);
-		preproConstraints.gridx = 1;
-		preproConstraints.gridy = 2;
+		preproConstraints.gridx = 3;
+		preproConstraints.gridy = 0;
 		preproPanel.add(group11Stemmer, preproConstraints);
-		preproConstraints.gridx = 1;
-		preproConstraints.gridy = 3;
+		preproConstraints.gridx = 4;
+		preproConstraints.gridy = 0;
 		preproPanel.add(readButton, preproConstraints);
 		preproPanel.setBorder(
 				BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Pre-Processing Panel"));
@@ -133,17 +133,17 @@ public class UserInterface extends JFrame {
 		configConstraints.gridx = 2;
 		configConstraints.gridy = 0;
 		configPanel.add(bim, configConstraints);
-		configConstraints.gridx = 2;
-		configConstraints.gridy = 1;
+		configConstraints.gridx = 3;
+		configConstraints.gridy = 0;
 		configPanel.add(twoP, configConstraints);
-		configConstraints.gridx = 2;
-		configConstraints.gridy = 2;
+		configConstraints.gridx = 4;
+		configConstraints.gridy = 0;
 		configPanel.add(bm11, configConstraints);
-		configConstraints.gridx = 2;
-		configConstraints.gridy = 3;
+		configConstraints.gridx = 5;
+		configConstraints.gridy = 0;
 		configPanel.add(bm25, configConstraints);
-		configConstraints.gridx = 2;
-		configConstraints.gridy = 4;
+		configConstraints.gridx = 6;
+		configConstraints.gridy = 0;
 		configPanel.add(lm, configConstraints);
 
 		configPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Config Panel"));
