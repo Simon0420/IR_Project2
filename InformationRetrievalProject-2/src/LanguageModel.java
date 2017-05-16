@@ -1,19 +1,15 @@
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.SortedMap;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 public class LanguageModel {
 	
 	static TreeMap<String, TreeMap<Integer, Integer>> invertedIndex = Preprocessing.invertedIndex;
 	static TreeMap<Integer, Integer> docSize = Preprocessing.docSize;
+	
+	
 	static TreeMap<String, TreeMap<Integer, Double>> localLM = new TreeMap<String, TreeMap<Integer, Double>>();
 	
 	//term, frequency
@@ -25,7 +21,7 @@ public class LanguageModel {
 
 
 	
-	public static void getLocalLangModel() throws IOException{
+	private static void getLocalLangModel() throws IOException{
 		/*
 		 * get LM from root directory
 		 * 1. Fetch TreeMap<docId, count> from invertedIndex.
@@ -66,7 +62,7 @@ public class LanguageModel {
 		
 	}
 	
-	public static void getGlobalLangModel() throws IOException{
+	private static void getGlobalLangModel() throws IOException{
 		/*
 		 * 1. to compute global LM, we need some data structure
 		 * that have a term and its global count. --> termSize
@@ -85,7 +81,7 @@ public class LanguageModel {
 		
 	}
 	
-	public static double JMSmoothing(double localRank, double globalRank){
+	private static double JMSmoothing(double localRank, double globalRank){
 		/*
 		 * 1. we all have information on maps
 		 * 2. so we just need to compute with lamda.
@@ -136,7 +132,7 @@ public class LanguageModel {
 	}
 	*/
 	
-	public static void computeRank(String term){
+	private static void computeRank(String term){
 		
 		/*
 		 * to rank with LM,  we need to get the value in LM with string of query.
@@ -188,7 +184,7 @@ public class LanguageModel {
 	 * 2. get TreeMap of ranks of each term by using computeRank() function
 	 * 3. sort the TreeMap and print or return it.
 	 */
-	public static TreeMap<Integer, Double>getRank(ArrayList<String> query){
+	private static TreeMap<Integer,Double> getRank(ArrayList<String> query){
 		
 		for(int i=0; i<query.size(); i++){
 			String term = query.get(i);
@@ -212,12 +208,14 @@ public class LanguageModel {
 		
 		//delete phase for get LMs after integrating.
 		try {
-			getLocalLangModel();
-			getGlobalLangModel();
-
-			if(q.function.equals("lm")){
-				q.unsortedResults = getRank(q.terms);
+			if(localLM.isEmpty()){
+				getLocalLangModel();
 			}
+			if(globalLM.isEmpty()){
+				getGlobalLangModel();
+			}
+			
+			q.unsortedResults = getRank(q.terms);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
