@@ -29,7 +29,7 @@ public class LanguageModel {
 		/*
 		 * get LM from root directory
 		 * 1. Fetch TreeMap<docId, count> from invertedIndex.
-		 * 2. 
+		 * 2. compute each rank of term in each document
 		 * 
 		 */
 		System.out.println();
@@ -57,8 +57,7 @@ public class LanguageModel {
 				double rank = (double) termCount / docSize.get(docId);
 	
 				temp2.put(docId, rank);
-				localLM.put(term, temp2);
-				
+				localLM.put(term, temp2);		
 				totalTermCount = totalTermCount + termCount;
 			}
 			
@@ -80,10 +79,10 @@ public class LanguageModel {
 		
 		while(it.hasNext()){
 			String term = it.next();
-			
 			globalLM.put(term, (double) termSize.get(term) / totalTermCount);
 			
 		}
+		
 	}
 	
 	public static double JMSmoothing(double localRank, double globalRank){
@@ -154,18 +153,22 @@ public class LanguageModel {
 		//first, get a data from localLM with corresponding term.
 		localRanks = localLM.get(term);
 		
+		
 		//then, get a computed rank with JMSmoothing for all docId having the term.
 		
 		/*** Errors here
 		 * its becuase using UserInterface, there are no steps to get LM.
 		 * so we need to get it first there, then we can rank documents by using LM.
+		 * 
+		 * But, maybe we can just make LM in this class and use it.
 		 */
+		
 		Iterator<Integer> it = localRanks.keySet().iterator();
 		double globalRank = globalLM.get(term);
 
 		while(it.hasNext()){
 			int docId = it.next();
-			double localRank = localRanks.get(docId);		
+			double localRank = localRanks.get(docId);
 			
 			if(computedRanks.containsKey(docId)){
 				//localRank = computedRanks.get(docId);
@@ -206,8 +209,18 @@ public class LanguageModel {
 	}
 	
 	public static void rank(Query q){
-		if(q.function.equals("lm")){
-			q.unsortedResults = getRank(q.terms);
+		
+		//delete phase for get LMs after integrating.
+		try {
+			getLocalLangModel();
+			getGlobalLangModel();
+
+			if(q.function.equals("lm")){
+				q.unsortedResults = getRank(q.terms);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	/*
@@ -279,6 +292,7 @@ public class LanguageModel {
 		
 		//System.out.println(localLM);
 		
+		/*
 		System.out.println("\n---Rank Documents Test---");
 		
 		Query q = new Query("clinton break", "lm", 10);
@@ -288,6 +302,7 @@ public class LanguageModel {
 		rank(q);
 		System.out.println("unsorted result");
 		System.out.println(q.unsortedResults);
+		*/
 		
 		//q.sortedResults=q.sortByValues(computedRanks);
 		//System.out.println("sorted result");
