@@ -161,7 +161,7 @@ public class UserInterface extends JFrame {
 		textPane.add(textArea);
 		getContentPane().add(textPane);
 		
-		this.setSize(800,800);
+		this.setSize(800,600);
 		setLocationRelativeTo(null);
 	}
 
