@@ -25,6 +25,8 @@ public class Evaluation {
 		//processQuery("asian auto quality rating");
 		//Query 5
 		//processQuery("asian auto quality rating");
+		
+		// Refresh Eclipse-Project after execution. All documents will be in a new directory "resultPool"!
 
 	}
 	
