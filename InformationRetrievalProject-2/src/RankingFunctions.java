@@ -10,18 +10,23 @@ public class RankingFunctions {
 		switch(q.function){
 		case "bim":
 			q.unsortedResults = rankBIM(q.terms);
+			break;
 		case "twoP":
 			q.unsortedResults = rankTwoPoisson(q.terms, 1.5);
+			break;
 		case "bm11":
 			q.unsortedResults = rankBM11(q.terms, 1.5);
+			break;
 		case "bm25":
 			q.unsortedResults = rankBM25(q.terms, 1.5, 0.75);
+			break;
 		}
 	}
 	
 	// return unsorted DocIds with their total weight (sum of all weights per term).
 	private static TreeMap<Integer,Double> rankBIM(ArrayList<String> query){
 		// TreeMap docId, weightSum
+		System.out.println("rankBIM");
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
 		while(it.hasNext()){
@@ -49,6 +54,7 @@ public class RankingFunctions {
 	// k is a real constant, usually 1 <= k < 2
 	private static TreeMap<Integer,Double> rankTwoPoisson(ArrayList<String> query, double k){
 		// TreeMap docId, weightSum
+		System.out.println("rank2-P");
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
 		while(it.hasNext()){
@@ -83,6 +89,7 @@ public class RankingFunctions {
 	// includes document lengths
 	private static TreeMap<Integer,Double> rankBM11(ArrayList<String> query, double k){
 		// TreeMap docId, weightSum
+		System.out.println("rankBM11");
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
 		while(it.hasNext()){
@@ -120,6 +127,7 @@ public class RankingFunctions {
 	// most common value for parameter b is b = 0.75 (for correction of doc length)
 	private static TreeMap<Integer,Double> rankBM25(ArrayList<String> query, double k, double b){
 		// TreeMap docId, weightSum
+		System.out.println("rankBM25");
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
 		while(it.hasNext()){
