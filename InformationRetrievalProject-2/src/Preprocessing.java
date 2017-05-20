@@ -129,7 +129,7 @@ public class Preprocessing {
 				// pre-processing here
 				token = token.toLowerCase();
 				token = token.replaceAll("[^\\w'@.]", "");
-				if (token.endsWith(".")) {
+				if (token.endsWith(".")||token.endsWith("?")) {
 					token = token.substring(0, token.length() - 1);
 				}
 				// 1st check for stop-word
@@ -194,7 +194,7 @@ public class Preprocessing {
 			// pre-processing here
 			token = token.toLowerCase();
 			token = token.replaceAll("[^\\w'@.]", "");
-			if (token.endsWith(".")) {
+			if (token.endsWith(".")||token.endsWith("?")) {
 				token = token.substring(0, token.length() - 1);
 			}
 			// 1st check for stop-word
