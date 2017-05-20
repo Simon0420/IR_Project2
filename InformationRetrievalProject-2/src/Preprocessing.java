@@ -128,16 +128,17 @@ public class Preprocessing {
 				String token = fileScanner.next();
 				// pre-processing here
 				token = token.toLowerCase();
+				token = token.trim();
 				token = token.replaceAll("[^\\w'@.]", "");
-				if (token.endsWith(".")||token.endsWith("?")) {
+				if (token.endsWith(".")||token.endsWith("?")||token.endsWith("!")||token.endsWith(",")||token.endsWith(":")) {
 					token = token.substring(0, token.length() - 1);
 				}
 				// 1st check for stop-word
 				if (stopwords.contains(token)) {
 					continue;
 				}
-				// only token > 1
-				if (token.length() > 0) {
+				// only token > 0
+				if (token.length() > 0 && !token.matches("[@.]*")) {
 					Word w = new Word();
 					w.setWord(token);
 					String term = "";
@@ -193,8 +194,9 @@ public class Preprocessing {
 			String token = fileScanner.next();
 			// pre-processing here
 			token = token.toLowerCase();
+			token = token.trim();
 			token = token.replaceAll("[^\\w'@.]", "");
-			if (token.endsWith(".")||token.endsWith("?")) {
+			if (token.endsWith(".")||token.endsWith("?")||token.endsWith("!")||token.endsWith(",")||token.endsWith(":")) {
 				token = token.substring(0, token.length() - 1);
 			}
 			// 1st check for stop-word
@@ -202,7 +204,7 @@ public class Preprocessing {
 				continue;
 			}
 			// only token > 1
-			if (token.length() > 0) {
+			if (token.length() > 0 && !token.matches("[@.]*")) {
 				Word w = new Word();
 				w.setWord(token);
 				String term = "";
