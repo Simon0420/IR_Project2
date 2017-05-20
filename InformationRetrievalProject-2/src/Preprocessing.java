@@ -213,7 +213,7 @@ public class Preprocessing {
 						w = s.stem(w);
 						term = w.word();
 					} else if(nlpLemma){
-						Lemmatization lemma = new Lemmatization("running");
+						Lemmatization lemma = new Lemmatization(token);
 						term = lemma.word;
 					}else{
 						term = token;
@@ -257,7 +257,7 @@ public class Preprocessing {
 		System.out.println("Time for preprocessing: "+((stop.getTime()-start.getTime())/1000)+"s");
 	}
 	
-
+	/*
 	public static void main(String[] args) {
 		Date start = new Date();
 		readDocumentCollection("20news-bydate");
@@ -281,7 +281,7 @@ public class Preprocessing {
 		}
 		Date stop = new Date();
 		System.out.println("Time for preprocessing: "+((stop.getTime()-start.getTime())/1000)+"s");
-	}
+	}*/
 
 	public static boolean isOwnStemmer() {
 		return ownStemmer;
