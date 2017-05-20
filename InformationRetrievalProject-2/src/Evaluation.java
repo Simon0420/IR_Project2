@@ -14,7 +14,17 @@ public class Evaluation {
 		
 		File dir = new File("resultPool");
 		dir.mkdir();
+		
+		//Query 1
 		processQuery("asian auto quality rating");
+		//Query 2
+		//processQuery("asian auto quality rating");
+		//Query 3
+		//processQuery("asian auto quality rating");
+		//Query 4
+		//processQuery("asian auto quality rating");
+		//Query 5
+		//processQuery("asian auto quality rating");
 
 	}
 	
