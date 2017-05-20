@@ -148,7 +148,7 @@ public class Preprocessing {
 							w = s.stem(w);
 							term = w.word();
 						} else if(nlpLemma){
-							Lemmatization lemma = new Lemmatization("running");
+							Lemmatization lemma = new Lemmatization(token);
 							term = lemma.word;
 							/*
 							StanfordCoreNLP pipeline = new StanfordCoreNLP(new Properties(){{

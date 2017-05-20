@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.io.*;
 
 /**
+ * !!!!!!! IR PROJECT NODE: THIS CLASS WAS NOT WRITTEN BY US!
+ * Author declared below.
  * 
  * @author Ethan Eldridge <ejayeldridge @ gmail.com>
  * 
@@ -61,7 +63,6 @@ public class Lemmatization {
 
 	static final private HashMap<String, String> exceptions = new HashMap<String, String>() {
 		{
-
 			put("ran", "run"); // ran -> run
 
 			put("runn", "run"); // running -> runn
@@ -181,16 +182,6 @@ public class Lemmatization {
 	public String toString() {
 
 		return this.word;
-
-	}
-
-	public static void main(String argv[]) throws Exception
-
-	{
-
-		Lemmatization s = new Lemmatization("running");
-
-		System.out.println(s);
 
 	}
 
