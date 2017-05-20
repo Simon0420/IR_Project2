@@ -25,9 +25,9 @@ public class Preprocessing {
 
 	static ArrayList<File> documents = new ArrayList<>();
 	static int globalTermCounter = 0;
-	static private boolean ownStemmer = true;
+	static private boolean ownStemmer = false;
 	static private boolean nlpLemma = false;
-	static private boolean nlpStemmer = false;
+	static private boolean nlpStemmer = true;
 
 	// TreeMap: term, document, document frequency
 	static TreeMap<String, TreeMap<Integer, Integer>> invertedIndex = new TreeMap<String, TreeMap<Integer, Integer>>();
