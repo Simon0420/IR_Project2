@@ -39,7 +39,7 @@ public class Query {
 	
 	public void search(){
 		if(function.equals("lm")){
-			//LanguageModel.rank(this);
+			LanguageModel.rank(this);
 		}else{
 			RankingFunctions.rank(this);
 		}
