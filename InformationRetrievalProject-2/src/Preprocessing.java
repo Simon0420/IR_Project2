@@ -39,8 +39,8 @@ public class Preprocessing {
 	static void readInStopwordLists() throws IOException {
 		String stopwordList = "stopwords.txt";
 		readSingleStopwordList(stopwordList);
-		stopwordList = "stopwords2.txt";
-		readSingleStopwordList(stopwordList);
+		//stopwordList = "stopwords2.txt";
+		//readSingleStopwordList(stopwordList);
 	}
 
 	private static void readSingleStopwordList(String stopwordList) throws FileNotFoundException, IOException {

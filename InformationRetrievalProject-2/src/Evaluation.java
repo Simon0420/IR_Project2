@@ -4,6 +4,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class Evaluation {
 
@@ -12,11 +19,14 @@ public class Evaluation {
 		Preprocessing.enableNlpStemmer();
 		Preprocessing.run();
 		
+		
+		// This method prints out all terms ascending sorted by number of documents in which they appear.
+		//sortByValues(Preprocessing.invertedIndex);
+		
 		File dir = new File("resultPool");
 		dir.mkdir();
-		
 		//Query 1
-		processQuery("asian auto quality rating");
+		//processQuery("asian auto quality rating");
 		//Query 2
 		//processQuery("asian auto quality rating");
 		//Query 3
@@ -28,6 +38,25 @@ public class Evaluation {
 		
 		// Refresh Eclipse-Project after execution. All documents will be in a new directory "resultPool"!
 
+	}
+	
+	private static SortedSet<Map.Entry<String,TreeMap<Integer,Integer>>> sortByValues(Map<String,TreeMap<Integer,Integer>> map) {
+	    SortedSet<Map.Entry<String,TreeMap<Integer,Integer>>> sortedEntries = new TreeSet<Map.Entry<String,TreeMap<Integer,Integer>>>(
+	        new Comparator<Map.Entry<String,TreeMap<Integer,Integer>>>() {
+	            @Override public int compare(Map.Entry<String,TreeMap<Integer,Integer>> e1, Map.Entry<String,TreeMap<Integer,Integer>> e2) {
+	                int s1 = e1.getValue().size();
+	                int s2 = e2.getValue().size();
+	                return s1 > s2 ? 1 : -1;
+	            }
+	        }
+	    );
+	    sortedEntries.addAll(map.entrySet());
+	    Iterator<Entry<String, TreeMap<Integer, Integer>>> it = sortedEntries.iterator();
+	    while(it.hasNext()){
+	    	Entry<String, TreeMap<Integer, Integer>> ob=it.next();
+	    	System.out.println(ob.getKey()+": "+ob.getValue().size());
+	    }
+	    return sortedEntries;
 	}
 	
 	static void readDocumentCollection(String rootFolderPath, int docID) {
