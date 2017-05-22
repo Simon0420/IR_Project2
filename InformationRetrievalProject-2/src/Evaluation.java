@@ -18,6 +18,7 @@ public class Evaluation {
 		
 		Preprocessing.enableNlpStemmer();
 		Preprocessing.run();
+		Preprocessing.printVocabulary();
 		
 		
 		// This method prints out all terms ascending sorted by number of documents in which they appear.

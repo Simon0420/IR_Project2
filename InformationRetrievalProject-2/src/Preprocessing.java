@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -313,5 +315,21 @@ public class Preprocessing {
 		Preprocessing.ownStemmer = false;
 		Preprocessing.nlpStemmer = true;
 		Preprocessing.nlpLemma = false;
+	}
+	
+	public static void printVocabulary(){
+		File dir = new File("resultPool");
+		dir.mkdir();
+		FileWriter fw;
+		try {
+			fw = new FileWriter("resultPool/voc.txt",false);
+			BufferedWriter bw = new BufferedWriter(fw);
+			for(String term: invertedIndex.keySet()){
+				bw.write(term);
+				bw.newLine();
+			}
+		    bw.close();
+		} catch (IOException e) {
+		}  	
 	}
 }
