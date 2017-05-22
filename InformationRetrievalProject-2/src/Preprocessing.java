@@ -38,13 +38,21 @@ public class Preprocessing {
 	// HashSet: stop-word
 	static HashSet<String> stopwords = new HashSet<>();
 
+	/**
+	 * This method merges two common stopword lists, to cover as many stopwords as possbile.
+	 * @throws IOException
+	 */
 	static void readInStopwordLists() throws IOException {
-		String stopwordList = "stopwords.txt";
-		readSingleStopwordList(stopwordList);
-		//stopwordList = "stopwords2.txt";
-		//readSingleStopwordList(stopwordList);
+		readSingleStopwordList("stopwords.txt");
+		readSingleStopwordList("stopwords_ranksnl.txt");
 	}
 
+	/**
+	 * This method reads a single stopword-list and adds the words to the stopwords treemap.
+	 * @param stopwordList
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
 	private static void readSingleStopwordList(String stopwordList) throws FileNotFoundException, IOException {
 		// FileReader reads text files in the default encoding.
 		FileReader fileReader = new FileReader(stopwordList);
@@ -125,26 +133,22 @@ public class Preprocessing {
 			int termCounter = 0;
 			fileScanner = new Scanner(documents.get(i));
 			int docId = Integer.parseInt(documents.get(i).getName());
+			
 			while (fileScanner.hasNext()) {
 				// next token
 				String token = fileScanner.next();
 				// pre-processing here
-				token = token.toLowerCase();
-				token = token.trim();
-				token = token.replaceAll("[^\\w'@.]", "");
-				if (token.endsWith(".")||token.endsWith("?")||token.endsWith("!")||token.endsWith(",")||token.endsWith(":")) {
-					token = token.substring(0, token.length() - 1);
-				}
+				token = useRegexOnToken(token);
 				// 1st check for stop-word
 				if (stopwords.contains(token)) {
 					continue;
 				}
 				// only token > 0
-				if (token.length() > 0 && !token.matches("[@.]*")) {
+				if (token.length() > 0) {
 					Word w = new Word();
 					w.setWord(token);
 					String term = "";
-					if (token.matches("[a-zA-Z']*")) {
+					if (token.matches("[a-z]+[a-z']*")) {
 						if (ownStemmer) {
 							term = ps.portersStemm(token);
 						} else if(nlpStemmer){
@@ -153,6 +157,7 @@ public class Preprocessing {
 						} else if(nlpLemma){
 							Lemmatization lemma = new Lemmatization(token);
 							term = lemma.word;
+							// stanford lemma, language models too big...
 							/*
 							StanfordCoreNLP pipeline = new StanfordCoreNLP(new Properties(){{
 								  setProperty("annotators", "tokenize,ssplit,pos,lemma");
@@ -172,9 +177,14 @@ public class Preprocessing {
 						if (stopwords.contains(term)) {
 							continue;
 						}
-					} else {
+					} else if(token.matches("[0-3][0-9]\\.[0-1][0-9]\\.[0-2][0-9]3")){
 						term = token;
 					}
+					// with/without emails
+					/* 
+					else if(token.matches("[a-z0-9]+[a-z_0-9\\.]*[a-z0-9]+@[a-z_0-9]+\\.[a-z_0-9\\.]*[a-z0-9]+")){
+						term = token;
+					}*/
 					addTermToInvertedIndex(term, docId);
 					termCounter++;
 					globalTermCounter++;
@@ -184,7 +194,38 @@ public class Preprocessing {
 		}
 		System.out.println("Documents read & term-lists built.");
 	}
+
+	/**
+	 * Does all regex-operations on the token.
+	 * 
+	 * @param token
+	 * @return
+	 */
+	private static String useRegexOnToken(String token) {
+		token = token.toLowerCase();
+		token = token.trim();
+		token = token.replaceAll("[^\\w'@\\.]", "");
+		token = token.replaceAll("''+","").replaceAll("\\.\\.+", "");
+		
+		if(token.matches(".*@@+.*") || token.matches(".*__+.*") || token.matches(".*\\.\\.+.*") || token.matches(".*''+.*")){
+			token = "";
+		}
+		
+		while(token.length() > 0 && (token.charAt(0) == '\'' || token.charAt(0) == '.' || token.charAt(0) == '_')){
+			token = token.substring(1);
+		}				
+		while(token.endsWith(".")||token.endsWith("?")||token.endsWith("!")||token.endsWith(",")||token.endsWith(":")||token.endsWith("'")||token.endsWith("_")){
+			token = token.substring(0, token.length() - 1);
+		}
+		return token;
+	}
 	
+	/**
+	 * Method to read in & process a query. Outputs remaining query-terms as list.
+	 * 
+	 * @param txt
+	 * @return
+	 */
 	public static ArrayList<String> getQuery(String txt){
 		Scanner fileScanner;
 		PortersStemmer ps = new PortersStemmer();
@@ -331,5 +372,10 @@ public class Preprocessing {
 		    bw.close();
 		} catch (IOException e) {
 		}  	
+	}
+	
+	public static void main(String[] args) {
+		Preprocessing.run();
+		Preprocessing.printVocabulary();
 	}
 }
