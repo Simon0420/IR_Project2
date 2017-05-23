@@ -129,8 +129,10 @@ public class Preprocessing {
 	 */
 	static void readInDocuments() throws FileNotFoundException {
 		Scanner fileScanner;
-		PortersStemmer ps = new PortersStemmer();
+		//Stanford NLP Stemmer
 		Stemmer s = new Stemmer();
+		//Group 11 Stemmer
+		PortersStemmer ps = new PortersStemmer();
 		for (int i = 0; i < documents.size(); i++) {
 			int termCounter = 0;
 			fileScanner = new Scanner(documents.get(i));
@@ -140,41 +142,31 @@ public class Preprocessing {
 			while (fileScanner.hasNext()) {
 				// next token
 				String token = fileScanner.next();
-				String temp = token;
-				// pre-processing here
+				// first preprocessing steps
 				token = useRegexOnToken(token);
 				// 1st check for stop-word
 				if (stopwords.contains(token)) {
 					continue;
 				}
 				token = token.trim();
-				// only token > 0
-				if (token.length() > 0) {
-					Word w = new Word();
-					w.setWord(token);
+				// only consider token > 0 now
+				if (token.length() > 0) {					
 					String term = "";
+					// check for 'normal' word?
 					if (token.matches("[a-z]+[a-z']*")) {
-						if (ownStemmer) {
+						// stemming
+						if (ownStemmer) {							
 							term = ps.portersStemm(token);
-						} else if(nlpStemmer){
+						} else if(nlpStemmer){							
+							Word w = new Word();
+							w.setWord(token);
 							w = s.stem(w);
 							term = w.word();
 						} else if(nlpLemma){
 							Lemmatization lemma = new Lemmatization(token);
 							term = lemma.word;
-							// stanford lemma, language models too big...
-							/*
-							StanfordCoreNLP pipeline = new StanfordCoreNLP(new Properties(){{
-								  setProperty("annotators", "tokenize,ssplit,pos,lemma");
-								}});
-							Annotation tokenAnnotation = new Annotation(token);
-							List<CoreMap> list = tokenAnnotation.get(SentencesAnnotation.class);
-							try{
-							term = list.get(0).get(TokensAnnotation.class).get(0).get(LemmaAnnotation.class);
-							}catch(NullPointerException ne){
-								System.out.println("Nullpointer...");
-								term = token;
-							}*/
+							// stanford lemmatize, language models too big...
+							//term = standfordLemmatize(token);
 						}else{
 							term = token;
 						}
@@ -182,21 +174,29 @@ public class Preprocessing {
 						if (stopwords.contains(term)) {
 							continue;
 						}
-					} else if(token.matches("[0-3][0-9]\\.[0-1][0-9]\\.[0-2][0-9]{3}")){
+					}
+					// check for date?
+					else if(token.matches("[0-3][0-9]\\.[0-1][0-9]\\.[0-2][0-9]{3}")){
 						term = token;
-					} else if(token.matches("[0-9]{0,4}[a-zA-Z]*") || token.matches("[a-zA-Z]*[0-9]+")){
+					} 
+					// check for word,numbers or numbers,word to extract things like honda-x5 -> hondax
+					// or 100mg, 125km/h -> mg, kmh etc...
+					else if(token.matches("[0-9]{0,4}[a-zA-Z]*") || token.matches("[a-zA-Z]*[0-9]+")){
 						String temptoken = token;
 						term = temptoken.replaceAll("[0-9]", "");
 					}
-					// with/without emails
+					// with/without emails (if code used, mails also will be in the vocabulary)
 					/*
 					else if(token.matches("[a-z0-9]+[a-z_0-9\\.]*[a-z0-9]+@[a-z_0-9]+\\.[a-z_0-9\\.]*[a-z0-9]+")){
 						term = token;
 					}*/
+					// again check length just to be sure
 					if(term.length() > 0){
+						// delete subsequent '-s 
 						if(term.charAt(term.length()-1) == '\''){
 							term = term.substring(0, term.length() - 1);
 						}
+						// finally, add term to index
 						addTermToInvertedIndex(term, docId);
 						termCounter++;
 						globalTermCounter++;
@@ -208,8 +208,26 @@ public class Preprocessing {
 		System.out.println("Documents read & term-lists built.");
 	}
 
+	@SuppressWarnings("unused")
+	private static String standfordLemmatize(String token) {
+		String term;
+		@SuppressWarnings("serial")
+		StanfordCoreNLP pipeline = new StanfordCoreNLP(new Properties(){{
+			  setProperty("annotators", "tokenize,ssplit,pos,lemma");
+			}});
+		Annotation tokenAnnotation = new Annotation(token);
+		List<CoreMap> list = tokenAnnotation.get(SentencesAnnotation.class);
+		try{
+		term = list.get(0).get(TokensAnnotation.class).get(0).get(LemmaAnnotation.class);
+		}catch(NullPointerException ne){
+			System.out.println("Nullpointer...");
+			term = token;
+		}
+		return term;
+	}
+
 	/**
-	 * Does all regex-operations on the token.
+	 * Does first regex-operations on the token.
 	 * 
 	 * @param token
 	 * @return
@@ -217,12 +235,18 @@ public class Preprocessing {
 	private static String useRegexOnToken(String token) {
 		token = token.toLowerCase();
 		token = token.trim();
+		// replace everything except a-zA-Z_0-9'@ and .
 		token = token.replaceAll("[^\\w'@\\.]", "");
+		
 		token = token.replaceAll("''+","").replaceAll("\\.\\.+", "").replaceAll(".*__+.*", "").replaceAll(".*@@+.*", "");
+		// you could use the following commented-out code instead of the replace in the line before (would be more radical cleaning)
+		// (tradeoff between losing information and get terms that actually make no sense)
 		/*
 		if(token.matches(".*@@+.*") || token.matches(".*__+.*") || token.matches(".*\\.\\.+.*") || token.matches(".*''+.*")){
 			token = "";
 		}*/
+		
+		// delete subsequent and trailing special characters (observed in the vocabulary)
 		while(token.length() > 0 && (token.charAt(0) == '\'' || token.charAt(0) == '.' || token.charAt(0) == '_')){
 			token = token.substring(1);
 		}				
@@ -247,33 +271,31 @@ public class Preprocessing {
 		while (fileScanner.hasNext()) {
 			// next token
 			String token = fileScanner.next();
-			// pre-processing here
-			token = token.toLowerCase();
-			token = token.trim();
-			token = token.replaceAll("[^\\w'@.]", "");
-			if (token.endsWith(".")||token.endsWith("?")||token.endsWith("!")||token.endsWith(",")||token.endsWith(":")) {
-				token = token.substring(0, token.length() - 1);
-			}
+			// first preprocessing steps
+			token = useRegexOnToken(token);
 			// 1st check for stop-word
 			if (stopwords.contains(token)) {
 				continue;
 			}
-			// only token > 1
-			if (token.length() > 0 && !token.matches("[@.]*")) {
-				Word w = new Word();
-				w.setWord(token);
+			token = token.trim();
+			// only consider token > 0 now
+			if (token.length() > 0) {					
 				String term = "";
-				if (token.matches("[a-zA-Z']*")) {
-					if (ownStemmer) {
+				// check for 'normal' word?
+				if (token.matches("[a-z]+[a-z']*")) {
+					// stemming
+					if (ownStemmer) {							
 						term = ps.portersStemm(token);
-					} else if(nlpStemmer){
+					} else if(nlpStemmer){							
+						Word w = new Word();
+						w.setWord(token);
 						w = s.stem(w);
 						term = w.word();
-						w.setWord("bbbbbbb");
-						
 					} else if(nlpLemma){
 						Lemmatization lemma = new Lemmatization(token);
 						term = lemma.word;
+						// stanford lemmatize, language models too big...
+						//term = standfordLemmatize(token);
 					}else{
 						term = token;
 					}
@@ -281,10 +303,31 @@ public class Preprocessing {
 					if (stopwords.contains(term)) {
 						continue;
 					}
-				} else {
-					term = token;
 				}
-				queryTerms.add(term);
+				// check for date?
+				else if(token.matches("[0-3][0-9]\\.[0-1][0-9]\\.[0-2][0-9]{3}")){
+					term = token;
+				} 
+				// check for word,numbers or numbers,word to extract things like honda-x5 -> hondax
+				// or 100mg, 125km/h -> mg, kmh etc...
+				else if(token.matches("[0-9]{0,4}[a-zA-Z]*") || token.matches("[a-zA-Z]*[0-9]+")){
+					String temptoken = token;
+					term = temptoken.replaceAll("[0-9]", "");
+				}
+				// with/without emails (if code used, mails also will be in the vocabulary)
+				/*
+				else if(token.matches("[a-z0-9]+[a-z_0-9\\.]*[a-z0-9]+@[a-z_0-9]+\\.[a-z_0-9\\.]*[a-z0-9]+")){
+					term = token;
+				}*/
+				// again check length just to be sure
+				if(term.length() > 0){
+					// delete subsequent '-s 
+					if(term.charAt(term.length()-1) == '\''){
+						term = term.substring(0, term.length() - 1);
+					}
+					// finally, add term to index
+					queryTerms.add(term);
+				}
 			}
 		}
 		fileScanner.close();
