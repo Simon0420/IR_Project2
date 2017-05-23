@@ -190,9 +190,11 @@ public class Preprocessing {
 					else if(token.matches("[a-z0-9]+[a-z_0-9\\.]*[a-z0-9]+@[a-z_0-9]+\\.[a-z_0-9\\.]*[a-z0-9]+")){
 						term = token;
 					}*/
-					addTermToInvertedIndex(term, docId);
-					termCounter++;
-					globalTermCounter++;
+					if(term.length() > 0){
+						addTermToInvertedIndex(term, docId);
+						termCounter++;
+						globalTermCounter++;
+					}
 				}
 			}
 			docSize.put(docId, termCounter);
@@ -210,12 +212,11 @@ public class Preprocessing {
 		token = token.toLowerCase();
 		token = token.trim();
 		token = token.replaceAll("[^\\w'@\\.]", "");
-		token = token.replaceAll("''+","").replaceAll("\\.\\.+", "");
-		
+		token = token.replaceAll("''+","").replaceAll("\\.\\.+", "").replaceAll(".*__+.*", "").replaceAll(".*@@+.*", "");
+		/*
 		if(token.matches(".*@@+.*") || token.matches(".*__+.*") || token.matches(".*\\.\\.+.*") || token.matches(".*''+.*")){
 			token = "";
-		}
-		
+		}*/
 		while(token.length() > 0 && (token.charAt(0) == '\'' || token.charAt(0) == '.' || token.charAt(0) == '_')){
 			token = token.substring(1);
 		}				
