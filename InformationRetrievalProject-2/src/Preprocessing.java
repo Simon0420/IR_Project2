@@ -37,6 +37,8 @@ public class Preprocessing {
 	static TreeMap<Integer, Integer> docSize = new TreeMap<Integer, Integer>();
 	// HashSet: stop-word
 	static HashSet<String> stopwords = new HashSet<>();
+	// maps created doc-ids to the path in the collection
+	static TreeMap<Integer, String> documentPathMapping = new TreeMap<Integer, String>();
 
 	/**
 	 * This method merges two common stopword lists, to cover as many stopwords as possbile.
@@ -132,17 +134,20 @@ public class Preprocessing {
 		for (int i = 0; i < documents.size(); i++) {
 			int termCounter = 0;
 			fileScanner = new Scanner(documents.get(i));
-			int docId = Integer.parseInt(documents.get(i).getName());
-			
+			int docId = i;
+			String path = documents.get(i).getPath();
+			documentPathMapping.put(i, path);
 			while (fileScanner.hasNext()) {
 				// next token
 				String token = fileScanner.next();
+				String temp = token;
 				// pre-processing here
 				token = useRegexOnToken(token);
 				// 1st check for stop-word
 				if (stopwords.contains(token)) {
 					continue;
 				}
+				token = token.trim();
 				// only token > 0
 				if (token.length() > 0) {
 					Word w = new Word();
