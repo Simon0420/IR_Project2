@@ -182,15 +182,21 @@ public class Preprocessing {
 						if (stopwords.contains(term)) {
 							continue;
 						}
-					} else if(token.matches("[0-3][0-9]\\.[0-1][0-9]\\.[0-2][0-9]3")){
+					} else if(token.matches("[0-3][0-9]\\.[0-1][0-9]\\.[0-2][0-9]{3}")){
 						term = token;
+					} else if(token.matches("[0-9]{0,4}[a-zA-Z]*") || token.matches("[a-zA-Z]*[0-9]+")){
+						String temptoken = token;
+						term = temptoken.replaceAll("[0-9]", "");
 					}
 					// with/without emails
-					/* 
+					/*
 					else if(token.matches("[a-z0-9]+[a-z_0-9\\.]*[a-z0-9]+@[a-z_0-9]+\\.[a-z_0-9\\.]*[a-z0-9]+")){
 						term = token;
 					}*/
 					if(term.length() > 0){
+						if(term.charAt(term.length()-1) == '\''){
+							term = term.substring(0, term.length() - 1);
+						}
 						addTermToInvertedIndex(term, docId);
 						termCounter++;
 						globalTermCounter++;
@@ -263,6 +269,8 @@ public class Preprocessing {
 					} else if(nlpStemmer){
 						w = s.stem(w);
 						term = w.word();
+						w.setWord("bbbbbbb");
+						
 					} else if(nlpLemma){
 						Lemmatization lemma = new Lemmatization(token);
 						term = lemma.word;
