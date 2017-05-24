@@ -27,7 +27,7 @@ public class Evaluation {
 		File dir = new File("resultPool");
 		dir.mkdir();
 		//Query 1
-		//processQuery("asian auto quality rating");
+		processQuery("honda");
 		//Query 2
 		//processQuery("asian auto quality rating");
 		//Query 3
@@ -68,6 +68,21 @@ public class Evaluation {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	static void printDocumentintoResultPool(int docID) throws IOException{
+		String text = "";
+		String docPathInCollectionFolder = Preprocessing.documentPathMapping.get(docID);
+		FileReader fileReader = new FileReader(docPathInCollectionFolder);
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		String line;
+		while ((line = bufferedReader.readLine()) != null) {
+			text += line+"\n";
+		}
+		bufferedReader.close();
+		try(PrintWriter out = new PrintWriter("resultPool/"+docID+".txt")  ){
+		    out.println("Original Document at Path:"+ docPathInCollectionFolder+"\n\n"+ text );
 		}
 	}
 
@@ -133,7 +148,12 @@ public class Evaluation {
 		Arrays.sort(union);
 		for(int i=0; i<union.length; i++){
 			System.out.println(union[i]);
-			readDocumentCollection("20news-bydate",union[i]);
+			try {
+				printDocumentintoResultPool(union[i]);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		
