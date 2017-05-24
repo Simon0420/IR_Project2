@@ -1,0 +1,44 @@
+alt.atheism:
+islamic, authority, women
+rushdie's, satanic, verses
+
+comp.graphics:
+handle, HDTV, moving, picture
+Adobe, Photo, Shop, platforms
+
+comp.os.ms-windows.misc:
+microsoft, support, windows
+word, file, format
+
+comp.sys.ibm.pc.hardware:
+Atari, ST, RAM
+CPU, fan, heatsink
+
+comp.sys.mac.hardware:
+monitors, on, 24hours, day
+powerbook, duo, memory
+
+comp.windows.x:
+Planet X, Software
+Configuring, DISPLAY, variable
+
+misc.forsale:
+Mazda 626, low, price
+Olymypus Stylus, pocket camera
+
+rec.autos:
+noisy, engine, sound
+alternative fuel, energy, vehicles
+
+rec.motorcycles:
+honda, sale
+first, bike, choice
+
+rec.sport.baseball:
+Jack Morris, Blue Jays
+interference, rule book
+
+rec.sport.hockey:
+Hart Trophy, Mario Lemieux
+nhl, scoring, leaders
+
