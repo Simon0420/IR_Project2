@@ -1,6 +1,7 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeMap;
 
@@ -136,59 +137,66 @@ public class LanguageModel {
 	}
 	*/
 	
-	private static void computeRank(String term){
-		
-		/*
-		 * to rank with LM,  we need to get the value in LM with string of query.
-		 * so, find the data which have the term in local and global LM first,
-		 * and, just calculate and rank the docs to some data
-		 * then return the data.
-		 */
-		
-		//docId, rank
-		TreeMap<Integer, Double> localRanks = new TreeMap<Integer, Double>();
-		
-		System.out.println(term);
-	
-		//first, get a data from localLM with corresponding term.
-		localRanks = localLM.get(term);
-		
-		
-		//then, get a computed rank with JMSmoothing for all docId having the term.
-		
-		/*** Errors here
-		 * its becuase using UserInterface, there are no steps to get LM.
-		 * so we need to get it first there, then we can rank documents by using LM.
-		 * 
-		 * But, maybe we can just make LM in this class and use it.
-		 */
-		
-		Iterator<Integer> it = localRanks.keySet().iterator();
-		double globalRank = globalLM.get(term);
-
-		while(it.hasNext()){
-			int docId = it.next();
-			double localRank = localRanks.get(docId);
-			
-			if(computedRanks.containsKey(docId)){
-				//localRank = computedRanks.get(docId);
-				double currentRank = computedRanks.get(docId);
-				double p = JMSmoothing(localRank, globalRank);
-				if(p != 0){
-					currentRank = currentRank*p;
-				}else{
-					currentRank = currentRank*1;
+	private static void computeRank(ArrayList<String> terms){
+		HashSet<Integer> relevantDocs = new HashSet<Integer>();
+		for(String term : terms){
+			//docId, rank
+			TreeMap<Integer, Double> localRanks = new TreeMap<Integer, Double>();	
+			//first, get a data from localLM with corresponding term.
+			if(invertedIndex.containsKey(term)){
+				localRanks = localLM.get(term);
+				Iterator<Integer> it = localRanks.keySet().iterator();
+				while(it.hasNext()){
+					int docId = it.next();
+					if(!relevantDocs.contains(docId)){
+						relevantDocs.add(docId);
+					}
 				}
-				computedRanks.put(docId, currentRank);
-				//computedRanks.put(docId, computedRanks.get(docId) + JMSmoothing(localRank, globalRank));
-			}
-			else{
-				if(JMSmoothing(localRank, globalRank) != 0){
-					computedRanks.put(docId, JMSmoothing(localRank, globalRank));
-				}				
 			}
 		}
 		
+		for(String term : terms){
+			if(!invertedIndex.containsKey(term)){
+				continue;
+			}
+			
+			/*
+			 * to rank with LM,  we need to get the value in LM with string of query.
+			 * so, find the data which have the term in local and global LM first,
+			 * and, just calculate and rank the docs to some data
+			 * then return the data.
+			 */
+		
+			//docId, rank
+			TreeMap<Integer, Double> localRanks = new TreeMap<Integer, Double>();	
+			//first, get a data from localLM with corresponding term.
+			localRanks = localLM.get(term);
+			double globalRank = globalLM.get(term);
+		
+			for(Integer docId : relevantDocs){
+				double localRank = 0;
+				if(localRanks.containsKey(docId)){
+					localRank = localRanks.get(docId);
+				}
+				if(computedRanks.containsKey(docId)){
+					//localRank = computedRanks.get(docId);
+					double currentRank = computedRanks.get(docId);
+					double p = JMSmoothing(localRank, globalRank);
+					if(p != 0){
+						currentRank = currentRank*p;
+					}else{
+						currentRank = currentRank*1;
+					}
+					computedRanks.put(docId, currentRank);
+					//computedRanks.put(docId, computedRanks.get(docId) + JMSmoothing(localRank, globalRank));
+				}
+				else{
+					if(JMSmoothing(localRank, globalRank) != 0){
+						computedRanks.put(docId, JMSmoothing(localRank, globalRank));
+					}				
+				}
+			}
+		}
 		//System.out.println("Unsorted Ranks..");
 		//System.out.println(computedRanks);		
 	}
@@ -200,12 +208,7 @@ public class LanguageModel {
 	 */
 	private static TreeMap<Integer,Double> getRank(ArrayList<String> query){
 		
-		for(int i=0; i<query.size(); i++){
-			String term = query.get(i);
-			if(invertedIndex.containsKey(term)){
-				computeRank(term);
-			}
-		}
+		computeRank(query);
 		
 		//We do not need to sort here, so just return unsorted result.
 		return computedRanks;
