@@ -26,8 +26,9 @@ public class Evaluation {
 		
 		File dir = new File("resultPool");
 		dir.mkdir();
+		
 		//Query 1
-		processQuery("honda");
+		processQuery("honda sale");
 		//Query 2
 		//processQuery("asian auto quality rating");
 		//Query 3
@@ -151,14 +152,10 @@ public class Evaluation {
 			try {
 				printDocumentintoResultPool(union[i]);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		
-		
 	}
-		
 	
 	public static String printResults(Query q){
 		int[] docs = q.getTopDocs();
