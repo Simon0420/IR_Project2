@@ -32,7 +32,7 @@ public class Evaluation {
 		dir.mkdir();
 
 		// Query 1
-		processQuery("asian auto quality rating");
+		processQuery("Yes, one can sometimes get away with running a newer ROM (of the correct size, obviously) in an older machine, but one should be prepared for problems if running software that checks for machine type rather than ROM trap availability and then draws incorrect conclusions when special-casing - especially timing-dependentand driver-related stuff. In this particular case I see no reason to go to the trouble of ROM-swapping. The Apple 32-bit enabler has problems, but MODE32");
 		// Query 2
 		// processQuery("asian auto quality rating");
 		// Query 3

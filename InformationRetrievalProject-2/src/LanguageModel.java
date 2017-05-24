@@ -53,7 +53,11 @@ public class LanguageModel {
 				double rank = (double) termCount / docSize.get(docId);
 	
 				temp2.put(docId, rank);
-				localLM.put(term, temp2);		
+				if(localLM.containsKey(term)){
+					localLM.get(term).put(docId, rank);
+				}else{
+					localLM.put(term, temp2);
+				}		
 				totalTermCount = totalTermCount + termCount;
 			}
 			
@@ -69,7 +73,7 @@ public class LanguageModel {
 		 * 2. and in the termSize, all words are already stored.
 		 * 3. so we just need to divide each row with total term count.
 		 */
-		int totalTermCount = Preprocessing.invertedIndex.size();
+		int totalTermCount = invertedIndex.size();
 		
 		Iterator<String> it = termSize.keySet().iterator();
 		
@@ -168,10 +172,20 @@ public class LanguageModel {
 			
 			if(computedRanks.containsKey(docId)){
 				//localRank = computedRanks.get(docId);
-				computedRanks.put(docId, computedRanks.get(docId) + JMSmoothing(localRank, globalRank));
+				double currentRank = computedRanks.get(docId);
+				double p = JMSmoothing(localRank, globalRank);
+				if(p != 0){
+					currentRank = currentRank*p;
+				}else{
+					currentRank = currentRank*1;
+				}
+				computedRanks.put(docId, currentRank);
+				//computedRanks.put(docId, computedRanks.get(docId) + JMSmoothing(localRank, globalRank));
 			}
 			else{
-				computedRanks.put(docId, JMSmoothing(localRank, globalRank));
+				if(JMSmoothing(localRank, globalRank) != 0){
+					computedRanks.put(docId, JMSmoothing(localRank, globalRank));
+				}				
 			}
 		}
 		
@@ -188,7 +202,9 @@ public class LanguageModel {
 		
 		for(int i=0; i<query.size(); i++){
 			String term = query.get(i);
-			computeRank(term);
+			if(invertedIndex.containsKey(term)){
+				computeRank(term);
+			}
 		}
 		
 		//We do not need to sort here, so just return unsorted result.
@@ -205,7 +221,7 @@ public class LanguageModel {
 	}
 	
 	public static void rank(Query q){
-		
+		invertedIndex = Preprocessing.invertedIndex;
 		//delete phase for get LMs after integrating.
 		try {
 			if(localLM.isEmpty()){
