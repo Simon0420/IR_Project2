@@ -32,15 +32,7 @@ public class Evaluation {
 		dir.mkdir();
 
 		// Query 1
-		processQuery("Yes, one can sometimes get away with running a newer ROM (of the correct size, obviously) in an older machine, but one should be prepared for problems if running software that checks for machine type rather than ROM trap availability and then draws incorrect conclusions when special-casing - especially timing-dependentand driver-related stuff. In this particular case I see no reason to go to the trouble of ROM-swapping. The Apple 32-bit enabler has problems, but MODE32");
-		// Query 2
-		//processQuery("honda sale");
-		// Query 3
-		// processQuery("asian auto quality rating");
-		// Query 4
-		// processQuery("asian auto quality rating");
-		// Query 5
-		// processQuery("asian auto quality rating");
+		processQuery("");
 
 		// Refresh Eclipse-Project after execution. All documents will be in a
 		// new directory "resultPool"!
@@ -163,7 +155,7 @@ public class Evaluation {
 		String res = "Algorithm: " + q.function + "\n";
 		res = res + "Rank |\tDocument ID\n";
 		for (int i = 0; i < docs.length; i++) {
-			res = res + (i + 1) + "\t" + docs[i] + "\n";
+			res = res + docs[i] + "\n";
 		}
 		System.out.println(res);
 		return res;
