@@ -21,6 +21,7 @@ public class Evaluation {
 
 		Preprocessing.enableNlpStemmer();
 		Preprocessing.run();
+		
 		//Preprocessing.printVocabulary();
 		//printHugeDocuments();
 		
@@ -31,11 +32,14 @@ public class Evaluation {
 		File dir = new File("resultPool");
 		dir.mkdir();
 
-		// Query 1
+		// Query 
+		// ------------------------------------------------------------- 
 		processQuery("");
+		// ------------------------------------------------------------- 
 
 		// Refresh Eclipse-Project after execution. All documents will be in a
-		// new directory "resultPool"!
+		// new directory "resultPool"! Before the execution of the next Query
+		// delete the directory "resultPool".
 	}
 
 	private static SortedSet<Map.Entry<String, TreeMap<Integer, Integer>>> sortByValues(Map<String, TreeMap<Integer, Integer>> map) {
