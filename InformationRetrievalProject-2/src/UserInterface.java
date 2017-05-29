@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 
 import javax.swing.*;
 
@@ -9,7 +8,9 @@ public class UserInterface extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JLabel labelQuery = new JLabel("Query: ");
+	private JLabel labelTopN = new JLabel("N= ");
 	private JTextField textQuery = new JTextField(40);
+	private JTextField textTopN = new JTextField("10",4);
 	private JButton searchButton = new JButton("Search");
 	private JButton deleteButton = new JButton("Delete");
 	private JLabel labelConfigPreprocessing = new JLabel("Pre-processing: ");
@@ -81,6 +82,7 @@ public class UserInterface extends JFrame {
 		JPanel queryPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints queryConstraints = new GridBagConstraints();
 		searchButton.setActionCommand("search");
+		searchButton.setEnabled(false);
 		deleteButton.setActionCommand("delete");
 		queryConstraints.anchor = GridBagConstraints.WEST;
 		queryConstraints.insets = new Insets(5, 5, 5, 5);
@@ -91,6 +93,12 @@ public class UserInterface extends JFrame {
 		queryConstraints.gridy = 0;
 		queryConstraints.gridwidth = 2;
 		queryPanel.add(textQuery, queryConstraints);
+		queryConstraints.gridx = 3;
+		queryConstraints.gridy = 0;
+		queryPanel.add(labelTopN, queryConstraints);
+		queryConstraints.gridx = 5;
+		queryConstraints.gridy = 0;
+		queryPanel.add(textTopN, queryConstraints);
 		queryConstraints.gridx = 1;
 		queryConstraints.gridy = 1;
 		queryConstraints.gridwidth = 1;
@@ -154,7 +162,7 @@ public class UserInterface extends JFrame {
 
 		// Console PANEL
 		textPane = new JTextPane();
-		textArea = new JTextArea("test");
+		textArea = new JTextArea();
 		textPane.setEditable(false);
 		textPane.setSize(300, 300);
 		textPane.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Console Panel"));
@@ -171,7 +179,14 @@ public class UserInterface extends JFrame {
 			String command = e.getActionCommand();
 			switch (command) {
 			case "readDocs":
+				String text = "Read document collection and pre-process documents.";
+				textPane.setText(text);
 				Preprocessing.run();
+				text += "\nFinished successfully.\n"
+						+"Number of Docments:\t"+Preprocessing.documents.size()+"\n"
+						+"Number of Stopwords:\t"+Preprocessing.stopwords.size()+"\n"
+						+"Number of Terms:\t"+Preprocessing.invertedIndex.size();
+				textPane.setText(text);
 				searchButton.setEnabled(true);
 				break;
 			case "nlpStemmer":
@@ -187,11 +202,23 @@ public class UserInterface extends JFrame {
 				textQuery.setText("");
 				break;
 			case "search":
+				int n;
+				try{
+					n = Integer.parseInt(textTopN.getText());
+					if(!(n > 0) || !(n <= Preprocessing.docSize.size())){
+						textPane.setText("WARNING: "+textTopN.getText()+" is not a valid number.");
+						break;
+					}
+				}catch(NumberFormatException ne){
+					textPane.setText("WARNING: "+textTopN.getText()+" is not a valid number.");
+					break;
+				}
+				
 				searchButton.setEnabled(false);
 				readButton.setEnabled(false);
 				String cmd = rankGroup.getSelection().getActionCommand();
 				System.out.println(cmd);
-				Query q = new Query(textQuery.getText(), cmd, 10);
+				Query q = new Query(textQuery.getText(), cmd, n);
 				System.out.println(q.terms);
 				q.search();
 				printResults(q);
@@ -206,9 +233,14 @@ public class UserInterface extends JFrame {
 	public void printResults(Query q){
 		int[] docs = q.getTopDocs();
 		String res = "Query: " + q.fullQuery+"\n";
-		res = res + "Rank |\tDocument ID\n";
+		res = res + "Rank |\tDocument ID |\t\tDocument Path\n";
 		for(int i=0; i<docs.length; i++){
-			res = res + (i+1) + "\t" + docs[i] + "\n";
+			if(docs[i] == -1){
+				res = res + (i+1) + "\t" + "-" + "\t\t" +"-"+"\n";
+			}else{
+				res = res + (i+1) + "\t" + docs[i] + "\t\t" + Preprocessing.documentPathMapping.get(docs[i])+"\n";
+			}
+			
 		}
 		textPane.setText(res);
 	}

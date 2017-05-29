@@ -48,10 +48,16 @@ public class Query {
 	
 	public int[] getTopDocs(){
 		int docs[] = new int[topCount];
+		int returnedDocsCount = this.sortedResults.size();
 		Iterator<Entry<Integer,Double>> it = this.sortedResults.iterator();
 		int i = 0;
-		while(it.hasNext() && i<topCount){
-			docs[i] = it.next().getKey();
+		while(i<topCount){
+			if(i >= returnedDocsCount){
+				docs[i] = -1;
+			}else{
+				docs[i] = it.next().getKey();
+			}
+
 			i++;
 		}
 		return docs;

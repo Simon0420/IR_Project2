@@ -207,7 +207,7 @@ public class LanguageModel {
 	 * 3. sort the TreeMap and print or return it.
 	 */
 	private static TreeMap<Integer,Double> getRank(ArrayList<String> query){
-		
+		computedRanks = new TreeMap<Integer, Double>();
 		computeRank(query);
 		
 		//We do not need to sort here, so just return unsorted result.

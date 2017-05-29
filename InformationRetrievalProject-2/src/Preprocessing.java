@@ -336,6 +336,9 @@ public class Preprocessing {
 	
 	public static void run(){
 		Date start = new Date();
+		invertedIndex = new TreeMap<String, TreeMap<Integer, Integer>>();
+		docSize = new TreeMap<Integer, Integer>();
+		documents = new ArrayList<>();
 		readDocumentCollection("20news-bydate");
 		System.out.println("No of Docments: "+documents.size());
 		try {
