@@ -184,8 +184,8 @@ public class UserInterface extends JFrame {
 				Preprocessing.run();
 				text += "\nFinished successfully.\n"
 						+"Number of Docments:\t"+Preprocessing.documents.size()+"\n"
-						+"Number of Stopwords:\t"+Preprocessing.stopwords.size()+"\n"
-						+"Number of Terms:\t"+Preprocessing.invertedIndex.size();
+						+"Size of Stopword-list:\t"+Preprocessing.stopwords.size()+"\n"
+						+"Indexed terms:\t"+Preprocessing.invertedIndex.size();
 				textPane.setText(text);
 				searchButton.setEnabled(true);
 				break;
