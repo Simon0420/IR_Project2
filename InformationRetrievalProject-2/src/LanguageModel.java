@@ -92,50 +92,9 @@ public class LanguageModel {
 		 * 2. so we just need to compute with lamda.
 		 */
 		double lamda=0.5;
-		//System.out.println(localLM.get(docId).get(term));
-		//System.out.println(globalLM.get(term));
-		
+	
 		return lamda*localRank + (1-lamda)*globalRank;
 	}
-	
-	/*
-	public static void printLocalLM(){
-		
-		Iterator<String> it = localLM.keySet().iterator();
-		Object obj;
-		int i=0;
-
-		while(it.hasNext()){
-			obj = it.next();
-			Iterator<Integer> it2 = localLM.get(obj).keySet().iterator();
-
-
-			System.out.println(obj +": "+ localLM.get(obj));
-			i++;
-			if(i==1000)
-				break;
-		}
-	}
-	*/
-	
-	/*
-	public static void printGlobaLM(){
-		
-		Iterator<String> it = globalLM.keySet().iterator();
-		Object obj;
-		int i=0;
-		while(it.hasNext()){
-			obj = it.next();
-			
-			System.out.println(obj +": "+ globalLM.get(obj));
-			i++;
-			if(i==100){
-				break;
-			}
-		}
-		
-	}
-	*/
 	
 	private static void computeRank(ArrayList<String> terms){
 		HashSet<Integer> relevantDocs = new HashSet<Integer>();
@@ -179,7 +138,6 @@ public class LanguageModel {
 					localRank = localRanks.get(docId);
 				}
 				if(computedRanks.containsKey(docId)){
-					//localRank = computedRanks.get(docId);
 					double currentRank = computedRanks.get(docId);
 					double p = JMSmoothing(localRank, globalRank);
 					if(p != 0){
@@ -188,7 +146,7 @@ public class LanguageModel {
 						currentRank = currentRank*1;
 					}
 					computedRanks.put(docId, currentRank);
-					//computedRanks.put(docId, computedRanks.get(docId) + JMSmoothing(localRank, globalRank));
+					
 				}
 				else{
 					if(JMSmoothing(localRank, globalRank) != 0){
@@ -197,8 +155,6 @@ public class LanguageModel {
 				}
 			}
 		}
-		//System.out.println("Unsorted Ranks..");
-		//System.out.println(computedRanks);		
 	}
 
 	/*
@@ -212,15 +168,7 @@ public class LanguageModel {
 		
 		//We do not need to sort here, so just return unsorted result.
 		return computedRanks;
-		
-		
-		/*
-		TreeMap<Integer, Double> sortedRanks = sortByValues(computedRanks);
-		System.out.println("Sorted Ranks");
-		System.out.println(sortedRanks);
-		return sortedRanks;
-		*/
-		
+			
 	}
 	
 	public static void rank(Query q){
@@ -239,38 +187,7 @@ public class LanguageModel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	/*
-	public static <K, V extends Comparable<V>> TreeMap<K, V> sortByValues(final TreeMap<K, V> map) {
-	    Comparator<K> valueComparator =  new Comparator<K>() {
-	        public int compare(K k1, K k2) {
-	            int compare = map.get(k2).compareTo(map.get(k1));
-	            if (compare == 0) return 1;
-	            else return compare;
-	        }
-	    };
-	    TreeMap<K, V> sortedByValues = new TreeMap<K, V>(valueComparator);
-	    sortedByValues.putAll(map);
-	    return sortedByValues;
-	}
-	*/
-	
-	/*
-	public static void printRanks(TreeMap<Integer, Double> sortedRanks){
-		
-		Iterator<Integer> it = sortedRanks.keySet().iterator();
-		
-		System.out.println("Rank |\tDocuments ID |\tRanks Value");
-		int i=0;
-		while(it.hasNext()){
-			int docId = it.next();
-			i++;
-			System.out.println(i+"\t"+docId+"\t \t"+sortedRanks.get(docId));
-		}
-	}
-	*/
-	
-	
+	}	
 	
 	public static void main(String args[]) throws IOException{
 		
@@ -306,24 +223,6 @@ public class LanguageModel {
 		System.out.print("Get Global Language Model..");
 		getGlobalLangModel();
 		System.out.println("done");
-		
-		//System.out.println(localLM);
-		
-		/*
-		System.out.println("\n---Rank Documents Test---");
-		
-		Query q = new Query("clinton break", "lm", 10);
-		System.out.println(q.fullQuery);
-		System.out.println(q.terms);
-		
-		rank(q);
-		System.out.println("unsorted result");
-		System.out.println(q.unsortedResults);
-		*/
-		
-		//q.sortedResults=q.sortByValues(computedRanks);
-		//System.out.println("sorted result");
-		//System.out.println(q.sortedResults);
-		
+			
 	}
 }
