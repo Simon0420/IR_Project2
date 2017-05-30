@@ -3,6 +3,7 @@ import java.util.HashSet;
 
 /**
  * Self-made porter's stemmer implementation
+ * implemented from instructions at http://snowball.tartarus.org/algorithms/porter/stemmer.html
  * 
  * @author simon
  *
