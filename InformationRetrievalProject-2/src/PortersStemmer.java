@@ -464,6 +464,8 @@ public class PortersStemmer {
 		word = step5a(word);
 		word = step5b(word);
 		System.out.println("stem done");
+		m = 0;
+		vc = "";
 		return word;
 	}
 
@@ -481,8 +483,48 @@ public class PortersStemmer {
 		System.out.println("Result: \t\t"+word);
 		System.out.println("---------------------------------------");
 		
-		//sample word2
+		// sample word2
+		word = "fizzed";
+		System.out.println("Input: \t\t\t"+word);
+		ps.calcM(word);
+		System.out.println("m-length: \t\t"+ps.m);
+		System.out.println("Vocal/Cons-Sequences: \t"+ps.vc.toUpperCase());
+		word = ps.portersStemm(word);
+		System.out.println("Result: \t\t"+word);
+		System.out.println("---------------------------------------");
+		
+		//sample word3
 		word = "falling";
+		System.out.println("Input: \t\t\t"+word);
+		ps.calcM(word);
+		System.out.println("m-length: \t\t"+ps.m);
+		System.out.println("Vocal/Cons-Sequences: \t"+ps.vc.toUpperCase());
+		word = ps.portersStemm(word);
+		System.out.println("Result: \t\t"+word);
+		System.out.println("---------------------------------------");
+		
+		//sample word4
+		word = "probate";
+		System.out.println("Input: \t\t\t"+word);
+		ps.calcM(word);
+		System.out.println("m-length: \t\t"+ps.m);
+		System.out.println("Vocal/Cons-Sequences: \t"+ps.vc.toUpperCase());
+		word = ps.portersStemm(word);
+		System.out.println("Result: \t\t"+word);
+		System.out.println("---------------------------------------");
+		
+		//sample word5
+		word = "rate";
+		System.out.println("Input: \t\t\t"+word);
+		ps.calcM(word);
+		System.out.println("m-length: \t\t"+ps.m);
+		System.out.println("Vocal/Cons-Sequences: \t"+ps.vc.toUpperCase());
+		word = ps.portersStemm(word);
+		System.out.println("Result: \t\t"+word);
+		System.out.println("---------------------------------------");
+		
+		//sample word5
+		word = "replacement";
 		System.out.println("Input: \t\t\t"+word);
 		ps.calcM(word);
 		System.out.println("m-length: \t\t"+ps.m);
