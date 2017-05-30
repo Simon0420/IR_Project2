@@ -165,8 +165,8 @@ public class Preprocessing {
 						} else if(nlpLemma){
 							Lemmatization lemma = new Lemmatization(token);
 							term = lemma.word;
-							// stanford lemmatize, language models too big...
-							//term = standfordLemmatize(token);
+							// alternative: stanford lemmatize, language models too big...
+							//term = stadfordLemmatize(token);
 						}else{
 							term = token;
 						}
@@ -207,9 +207,92 @@ public class Preprocessing {
 		}
 		System.out.println("Documents read & term-lists built.");
 	}
-
+	
+	/**
+	 * Method to read in & process a query. Outputs remaining query-terms as list.
+	 * 
+	 * @param txt
+	 * @return
+	 */
+	public static ArrayList<String> getQuery(String txt){
+		Scanner fileScanner;
+		PortersStemmer ps = new PortersStemmer();
+		Stemmer s = new Stemmer();
+		fileScanner = new Scanner(txt);
+		ArrayList<String> queryTerms = new ArrayList<String>();
+		while (fileScanner.hasNext()) {
+			// next token
+			String token = fileScanner.next();
+			// first preprocessing steps
+			token = useRegexOnToken(token);
+			// 1st check for stop-word
+			if (stopwords.contains(token)) {
+				continue;
+			}
+			token = token.trim();
+			// only consider token > 0 now
+			if (token.length() > 0) {					
+				String term = "";
+				// check for 'normal' word?
+				if (token.matches("[a-z]+[a-z']*")) {
+					// stemming
+					if (ownStemmer) {							
+						term = ps.portersStemm(token);
+					} else if(nlpStemmer){							
+						Word w = new Word();
+						w.setWord(token);
+						w = s.stem(w);
+						term = w.word();
+					} else if(nlpLemma){
+						Lemmatization lemma = new Lemmatization(token);
+						term = lemma.word;
+						// alternative: stanford lemmatize, language models too big...
+						//term = stanfordLemmatize(token);
+					}else{
+						term = token;
+					}
+					//2nd check for stop-word
+					if (stopwords.contains(term)) {
+						continue;
+					}
+				}
+				// check for date?
+				else if(token.matches("[0-3][0-9]\\.[0-1][0-9]\\.[0-2][0-9]{3}")){
+					term = token;
+				} 
+				// check for word,numbers or numbers,word to extract things like honda-x5 -> hondax
+				// or 100mg, 125km/h -> mg, kmh etc...
+				else if(token.matches("[0-9]{0,4}[a-zA-Z]*") || token.matches("[a-zA-Z]*[0-9]+")){
+					String temptoken = token;
+					term = temptoken.replaceAll("[0-9]", "");
+				}
+				// with/without emails (if code used, mails also will be in the vocabulary)
+				/*
+				else if(token.matches("[a-z0-9]+[a-z_0-9\\.]*[a-z0-9]+@[a-z_0-9]+\\.[a-z_0-9\\.]*[a-z0-9]+")){
+					term = token;
+				}*/
+				// again check length just to be sure
+				if(term.length() > 0){
+					// delete subsequent '-s 
+					if(term.charAt(term.length()-1) == '\''){
+						term = term.substring(0, term.length() - 1);
+					}
+					// finally, add term to index
+					queryTerms.add(term);
+				}
+			}
+		}
+		fileScanner.close();
+		return queryTerms;
+	}
+	
+	/**
+	 * Method to run stanford lemmatizer
+	 * @param token
+	 * @return
+	 */
 	@SuppressWarnings("unused")
-	private static String standfordLemmatize(String token) {
+	private static String stanfordLemmatize(String token) {
 		String term;
 		@SuppressWarnings("serial")
 		StanfordCoreNLP pipeline = new StanfordCoreNLP(new Properties(){{
@@ -256,84 +339,6 @@ public class Preprocessing {
 		return token;
 	}
 	
-	/**
-	 * Method to read in & process a query. Outputs remaining query-terms as list.
-	 * 
-	 * @param txt
-	 * @return
-	 */
-	public static ArrayList<String> getQuery(String txt){
-		Scanner fileScanner;
-		PortersStemmer ps = new PortersStemmer();
-		Stemmer s = new Stemmer();
-		fileScanner = new Scanner(txt);
-		ArrayList<String> queryTerms = new ArrayList<String>();
-		while (fileScanner.hasNext()) {
-			// next token
-			String token = fileScanner.next();
-			// first preprocessing steps
-			token = useRegexOnToken(token);
-			// 1st check for stop-word
-			if (stopwords.contains(token)) {
-				continue;
-			}
-			token = token.trim();
-			// only consider token > 0 now
-			if (token.length() > 0) {					
-				String term = "";
-				// check for 'normal' word?
-				if (token.matches("[a-z]+[a-z']*")) {
-					// stemming
-					if (ownStemmer) {							
-						term = ps.portersStemm(token);
-					} else if(nlpStemmer){							
-						Word w = new Word();
-						w.setWord(token);
-						w = s.stem(w);
-						term = w.word();
-					} else if(nlpLemma){
-						Lemmatization lemma = new Lemmatization(token);
-						term = lemma.word;
-						// stanford lemmatize, language models too big...
-						//term = standfordLemmatize(token);
-					}else{
-						term = token;
-					}
-					//2nd check for stop-word
-					if (stopwords.contains(term)) {
-						continue;
-					}
-				}
-				// check for date?
-				else if(token.matches("[0-3][0-9]\\.[0-1][0-9]\\.[0-2][0-9]{3}")){
-					term = token;
-				} 
-				// check for word,numbers or numbers,word to extract things like honda-x5 -> hondax
-				// or 100mg, 125km/h -> mg, kmh etc...
-				else if(token.matches("[0-9]{0,4}[a-zA-Z]*") || token.matches("[a-zA-Z]*[0-9]+")){
-					String temptoken = token;
-					term = temptoken.replaceAll("[0-9]", "");
-				}
-				// with/without emails (if code used, mails also will be in the vocabulary)
-				/*
-				else if(token.matches("[a-z0-9]+[a-z_0-9\\.]*[a-z0-9]+@[a-z_0-9]+\\.[a-z_0-9\\.]*[a-z0-9]+")){
-					term = token;
-				}*/
-				// again check length just to be sure
-				if(term.length() > 0){
-					// delete subsequent '-s 
-					if(term.charAt(term.length()-1) == '\''){
-						term = term.substring(0, term.length() - 1);
-					}
-					// finally, add term to index
-					queryTerms.add(term);
-				}
-			}
-		}
-		fileScanner.close();
-		return queryTerms;
-	}
-	
 	public static void run(){
 		Date start = new Date();
 		invertedIndex = new TreeMap<String, TreeMap<Integer, Integer>>();
@@ -361,32 +366,6 @@ public class Preprocessing {
 		Date stop = new Date();
 		System.out.println("Time for preprocessing: "+((stop.getTime()-start.getTime())/1000)+"s");
 	}
-	
-	/*
-	public static void main(String[] args) {
-		Date start = new Date();
-		readDocumentCollection("20news-bydate");
-		System.out.println("No of Docments: "+documents.size());
-		try {
-			readInStopwordLists();
-			System.out.println("No of Stopwords: "+stopwords.size());
-			
-			if(Preprocessing.isNlpLemma()){
-				System.out.println("NLP Lemmatization");
-			}else if(Preprocessing.isNlpStemmer()){
-				System.out.println("NLP Stemming");
-			}else{
-				System.out.println("Custom Stemming");
-			}
-			
-			readInDocuments();
-			System.out.println("No of Terms: "+invertedIndex.size());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Date stop = new Date();
-		System.out.println("Time for preprocessing: "+((stop.getTime()-start.getTime())/1000)+"s");
-	}*/
 
 	public static boolean isOwnStemmer() {
 		return ownStemmer;
@@ -432,10 +411,5 @@ public class Preprocessing {
 		    bw.close();
 		} catch (IOException e) {
 		}  	
-	}
-	
-	public static void main(String[] args) {
-		Preprocessing.run();
-		Preprocessing.printVocabulary();
 	}
 }
