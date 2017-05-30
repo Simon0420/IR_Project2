@@ -23,6 +23,12 @@ import edu.stanford.nlp.process.Stemmer;
 import edu.stanford.nlp.simple.Sentence;
 import edu.stanford.nlp.util.CoreMap;
 
+/**
+ * Performs preprocessing and build inverted index
+ * 
+ * @author simon
+ *
+ */
 public class Preprocessing {
 
 	static ArrayList<File> documents = new ArrayList<>();
