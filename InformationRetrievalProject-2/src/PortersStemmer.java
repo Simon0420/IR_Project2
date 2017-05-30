@@ -453,7 +453,7 @@ public class PortersStemmer {
 
 	String portersStemm(String word) {
 		calcM(word);
-		System.out.println("stem...");
+		//System.out.println("stem...");
 		word = step0(word);
 		word = step1a(word);
 		word = step1b(word);
@@ -463,9 +463,13 @@ public class PortersStemmer {
 		word = step4(word);
 		word = step5a(word);
 		word = step5b(word);
-		System.out.println("stem done");
+		//System.out.println("stem done");
 		m = 0;
 		vc = "";
+		r1 = 0;
+		r2 = 0;
+		p1 = "";
+		p2 = "";
 		return word;
 	}
 
