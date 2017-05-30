@@ -7,7 +7,6 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-//@author Lars
 public class Query {
 	
 	public String fullQuery;
@@ -24,6 +23,20 @@ public class Query {
 		this.terms = Preprocessing.getQuery(full);
 	}
 	
+	public void search(){
+		if(function.equals("lm")){
+			LanguageModel.rank(this);
+		}else{
+			RankingFunctions.rank(this);
+		}
+		this.sortedResults = sortByValues(this.unsortedResults);
+	}
+	
+	/**
+	 * This method sorts a Map based on the values not the keys
+	 * @param map: sorted by Integer-keys, not the Double-values
+	 * @return SortedSet containing the map entries in descending value order 
+	 */
 	private static SortedSet<Map.Entry<Integer,Double>> sortByValues(Map<Integer,Double> map) {
 	    SortedSet<Map.Entry<Integer,Double>> sortedEntries = new TreeSet<Map.Entry<Integer,Double>>(
 	        new Comparator<Map.Entry<Integer,Double>>() {
@@ -37,15 +50,11 @@ public class Query {
 	    return sortedEntries;
 	}
 	
-	public void search(){
-		if(function.equals("lm")){
-			LanguageModel.rank(this);
-		}else{
-			RankingFunctions.rank(this);
-		}
-		this.sortedResults = sortByValues(this.unsortedResults);
-	}
-	
+	/**
+	 * This method creates an Array containing the top N DocIds for this query
+	 * If N > number of relevant documents, the remaining slots are filled with -1
+	 * @return int-Array containing DocIds of best results. 
+	 */
 	public int[] getTopDocs(){
 		int docs[] = new int[topCount];
 		int returnedDocsCount = this.sortedResults.size();

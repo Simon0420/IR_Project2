@@ -15,6 +15,10 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+/**
+* This class contains methods to speed up the evaluation of implemented ranking models
+* using the pooling technique.
+*/
 public class Evaluation {
 
 	public static void main(String[] args) {
@@ -27,7 +31,7 @@ public class Evaluation {
 		
 		// This method prints out all terms ascending sorted by number of
 		// documents in which they appear.
-		// sortByValues(Preprocessing.invertedIndex);
+		// sortByDocFreq(Preprocessing.invertedIndex);
 		
 		File dir = new File("resultPool");
 		dir.mkdir();
@@ -38,11 +42,11 @@ public class Evaluation {
 		// ------------------------------------------------------------- 
 
 		// Refresh Eclipse-Project after execution. All documents will be in a
-		// new directory "resultPool"! Before the execution of the next Query
-		// delete the directory "resultPool".
+		// new directory "resultPool" for relevance judgements! 
+		// Before the execution of the next Query delete the directory again.
 	}
 
-	private static SortedSet<Map.Entry<String, TreeMap<Integer, Integer>>> sortByValues(Map<String, TreeMap<Integer, Integer>> map) {
+	private static SortedSet<Map.Entry<String, TreeMap<Integer, Integer>>> sortByDocFreq(Map<String, TreeMap<Integer, Integer>> map) {
 		SortedSet<Map.Entry<String, TreeMap<Integer, Integer>>> sortedEntries = new TreeSet<Map.Entry<String, TreeMap<Integer, Integer>>>(
 				new Comparator<Map.Entry<String, TreeMap<Integer, Integer>>>() {
 					@Override

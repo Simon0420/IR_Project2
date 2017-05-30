@@ -15,7 +15,7 @@ public class UserInterface extends JFrame {
 	private JButton deleteButton = new JButton("Delete");
 	private JLabel labelConfigPreprocessing = new JLabel("Pre-processing: ");
 	private JButton readButton = new JButton("Read Doc-Collection");
-	private JLabel labelRankingFunctions = new JLabel("Ranking-f(x)s: ");
+	private JLabel labelRankingFunctions = new JLabel("Ranking models: ");
 	private ActionListener buttonListener = new IR_UI_Listener();
 	private ButtonGroup rankGroup = new ButtonGroup();
 	private static JTextPane textPane;
@@ -120,13 +120,13 @@ public class UserInterface extends JFrame {
 
 		JRadioButton bim = new JRadioButton("BIM");
 		bim.setActionCommand("bim");
-		bim.setSelected(true);
-		JRadioButton twoP = new JRadioButton("2-P");
+		JRadioButton twoP = new JRadioButton("Two Poisson");
 		twoP.setActionCommand("twoP");
 		JRadioButton bm11 = new JRadioButton("BM11");
 		bm11.setActionCommand("bm11");
-		JRadioButton bm25 = new JRadioButton("BM25");
+		JRadioButton bm25 = new JRadioButton("BM25 (recomm.)");
 		bm25.setActionCommand("bm25");
+		bm25.setSelected(true);
 		JRadioButton lm = new JRadioButton("LM");
 		lm.setActionCommand("lm");
 		// Group the radio buttons.

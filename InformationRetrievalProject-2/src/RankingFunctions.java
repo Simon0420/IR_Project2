@@ -2,7 +2,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-// @author Lars Hoffmann
+/**
+* This class contains the implementations of classic probabilistic retrieval models for ranking.
+*/
 public class RankingFunctions {
 	
 
@@ -23,10 +25,14 @@ public class RankingFunctions {
 		}
 	}
 	
-	// return unsorted DocIds with their total weight (sum of all weights per term).
+	/**
+	 * This method implements the Binary Independence Model (without relevance judgements, with smoothing)
+	 * @param query: list of preprocessed query terms
+	 * @return TreeMap containing DocIds with their total weight (sum of all weights per term).
+	 */
 	private static TreeMap<Integer,Double> rankBIM(ArrayList<String> query){
+		
 		// TreeMap docId, weightSum
-		System.out.println("rankBIM");
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
 		while(it.hasNext()){
@@ -50,11 +56,15 @@ public class RankingFunctions {
 		return ranks;
 	}
 	
-	// return unsorted DocIds with their total weight (sum of all weights per term) with Poisson distribution.
-	// k is a real constant, usually 1 <= k < 2
+	/**
+	 * This method implements the Two Poisson extension of the BIM
+	 * @param query: list of preprocessed query terms
+	 * @param k: calibrates the document term frequency scaling (standard value 1.5)
+	 * @return TreeMap containing DocIds with their total weight (sum of all weights per term with Poisson distribution)
+	 */
 	private static TreeMap<Integer,Double> rankTwoPoisson(ArrayList<String> query, double k){
+		
 		// TreeMap docId, weightSum
-		System.out.println("rank2-P");
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
 		while(it.hasNext()){
@@ -84,14 +94,19 @@ public class RankingFunctions {
 		return ranks;
 	}
 	
-	// return unsorted DocIds with their total weight (sum of all weights per term) with Poisson distribution.
-	// k is a real constant, usually 1 <= k < 2
-	// includes document lengths
+	/**
+	 * This method implements the BM11 extension of the BIM
+	 * @param query: list of preprocessed query terms
+	 * @param k: calibrates the document term frequency scaling (standard value 1.5)
+	 * @return TreeMap containing DocIds with their total weight (sum of all weights per term 
+	 * 		   including Poisson distribution and document lengths)
+	 */
 	private static TreeMap<Integer,Double> rankBM11(ArrayList<String> query, double k){
+		
 		// TreeMap docId, weightSum
-		System.out.println("rankBM11");
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
+		double lAvg = getAvgDocLength();
 		while(it.hasNext()){
 			String term = it.next();
 			double weight = getWt(term);
@@ -103,7 +118,6 @@ public class RankingFunctions {
 					
 					// Poisson distribution with doc length included 
 					int termFreq = docs.get(docId); 	// f t,D
-					double lAvg = getAvgDocLength();
 					double lDoc = Preprocessing.docSize.get(docId);
 					double weightNew = ( (termFreq*(k+1))/( termFreq+(k*(lDoc/lAvg)) ) ) * weight;
 					
@@ -121,15 +135,20 @@ public class RankingFunctions {
 		return ranks;	
 	}
 	
-	// return unsorted DocIds with their total weight (sum of all weights per term) with Poisson distribution.
-	// k is a real constant, usually 1 <= k < 2
-	// includes document lengths	
-	// most common value for parameter b is b = 0.75 (for correction of doc length)
+	/**
+	 * This method implements the BM25 extension of the BIM
+	 * @param query: list of preprocessed query terms
+	 * @param k: calibrates the document term frequency scaling (standard value 1.5)
+	 * @param b: determines the scaling by document length: (standard value 0.75)
+	 * @return TreeMap containing DocIds with their total weight (sum of all weights per term 
+	 * 		   including Poisson distribution and corrected document length effect)
+	 */
 	private static TreeMap<Integer,Double> rankBM25(ArrayList<String> query, double k, double b){
+		
 		// TreeMap docId, weightSum
-		System.out.println("rankBM25");
 		TreeMap<Integer,Double> ranks = new TreeMap<Integer,Double>();
 		Iterator<String> it = query.iterator();
+		double lAvg = getAvgDocLength();
 		while(it.hasNext()){
 			String term = it.next();
 			double weight = getWt(term);
@@ -141,7 +160,6 @@ public class RankingFunctions {
 					
 					// Poisson distribution with corrected doc length included 
 					int termFreq = docs.get(docId); 	// f t,D
-					double lAvg = getAvgDocLength();
 					double lDoc = Preprocessing.docSize.get(docId);
 					double weightNew = ( (termFreq*(k+1))/( termFreq+(k*(lDoc/lAvg)*b)+(k*(1-b)) ) ) * weight;
 					
@@ -165,7 +183,8 @@ public class RankingFunctions {
 		}
 		int docsHaveTerm = Preprocessing.invertedIndex.get(term).size();
 		int totalDocs = Preprocessing.docSize.size();
-		double weight = Math.log(0.5 * ((totalDocs + 1)/(docsHaveTerm + 0.5))); //with smoothing
+		// weight calculation includes smoothing
+		double weight = Math.log(0.5 * ((totalDocs + 1)/(docsHaveTerm + 0.5)));
 		return weight;
 	}
 	
@@ -174,8 +193,7 @@ public class RankingFunctions {
 		Iterator<Integer> it = Preprocessing.docSize.values().iterator();
 		while(it.hasNext()){
 			totalLength += it.next();
-		}
-				
+		}	
 		return totalLength / (double)Preprocessing.docSize.size();
 	}
 
