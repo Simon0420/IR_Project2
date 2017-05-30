@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.io.*;
 
 /**
- * !!!!!!! IR PROJECT NODE: THIS CLASS WAS NOT WRITTEN BY US!
+ * !! IR PROJECT NOTE: THIS CLASS WAS NOT WRITTEN BY US !!
  * Author declared below.
  * 
  * @author Ethan Eldridge <ejayeldridge @ gmail.com>
