@@ -34,7 +34,7 @@ public class UserInterface extends JFrame {
 		JRadioButton nlpStemmer = new JRadioButton("CoreNLP Stemmer");
 		nlpStemmer.setActionCommand("nlpStemmer");
 		nlpStemmer.addActionListener(buttonListener);
-		JRadioButton nlpLemmatizer = new JRadioButton("CoreNLP Lemmatizer");
+		JRadioButton nlpLemmatizer = new JRadioButton("Lemmatizer");
 		nlpLemmatizer.addActionListener(buttonListener);
 		nlpLemmatizer.setActionCommand("nlpLemmatizer");
 		JRadioButton group11Stemmer = new JRadioButton("Group#11 Stemmer");
