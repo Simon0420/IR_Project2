@@ -4,7 +4,7 @@ The code of our project was written in eclipse.
 Therefore, this archive is also a eclipse project structure and could be imported easily. 
 Nevertheless, you can also find the Java-code in the src-folder and the compiled java classes are within the bin folder.
 
-NOTE: The coded can be also found in our GitHub repository: https://github.com/Simon0420/IR_Project2
+NOTE: The code can be also found in our GitHub repository: https://github.com/Simon0420/IR_Project2
 
 >> How to start the program?
 For the simplest way to start the program, you can simply use the Executable Jar File named 'IRSystemApplciation'.
