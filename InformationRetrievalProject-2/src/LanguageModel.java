@@ -188,41 +188,4 @@ public class LanguageModel {
 			e.printStackTrace();
 		}
 	}	
-	
-	public static void main(String args[]) throws IOException{
-		
-		System.out.println("----LangModel2-----");
-		System.out.print("Read Document Collection...\t");
-		Preprocessing.readDocumentCollection("20news-bydate");
-		System.out.println("done");
-		System.out.println("Documents found: "+Preprocessing.documents.size());
-		
-		try {
-			System.out.print("Read Stopword Lists...\t\t");
-			Preprocessing.readInStopwordLists();
-			System.out.println("done");
-			System.out.println("Stopwords found: "+Preprocessing.stopwords.size());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		try {
-			System.out.print("Create Inverted Index...\t");
-			Preprocessing.enableNlpStemmer();
-			Preprocessing.readInDocuments();
-			System.out.println("Total considered terms: "+Preprocessing.invertedIndex.size());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		System.out.print("Get Local Langauge Model..");
-		getLocalLangModel();
-		System.out.println("done");
-		
-		
-		System.out.print("Get Global Language Model..");
-		getGlobalLangModel();
-		System.out.println("done");
-			
-	}
 }

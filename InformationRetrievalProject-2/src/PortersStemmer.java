@@ -474,7 +474,7 @@ public class PortersStemmer {
 		return word;
 	}
 
-	// test main-method
+	// main-method to test the stemmer
 	public static void main(String[] args) {
 		PortersStemmer ps = new PortersStemmer();
 		
